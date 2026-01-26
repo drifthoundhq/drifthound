@@ -2,6 +2,11 @@ require "test_helper"
 
 class Api::V1::ProjectsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    # Clean up any existing data from fixtures to ensure test isolation
+    DriftCheck.destroy_all
+    Environment.destroy_all
+    Project.destroy_all
+
     @api_token = ApiToken.create!(name: "test-token")
     @auth_header = { "Authorization" => "Bearer #{@api_token.token}" }
   end
