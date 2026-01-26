@@ -4,10 +4,13 @@ module Api
       # GET /api/v1/projects
       # Optional query params:
       #   - with_drift: "true" to filter only projects with drifting environments
+      #   - with_issues: "true" to filter projects with drift OR error environments
       def index
         projects = Project.includes(:environments).order(:name)
 
-        if params[:with_drift] == "true"
+        if params[:with_issues] == "true"
+          projects = projects.joins(:environments).where(environments: { status: [ :drift, :error ] }).distinct
+        elsif params[:with_drift] == "true"
           projects = projects.joins(:environments).where(environments: { status: :drift }).distinct
         end
 
@@ -31,7 +34,8 @@ module Api
           aggregated_status: project.aggregated_status,
           last_checked_at: project.last_checked_at,
           environment_count: project.environments.count,
-          drift_environment_count: project.environments.where(status: :drift).count
+          drift_environment_count: project.environments.where(status: :drift).count,
+          error_environment_count: project.environments.where(status: :error).count
         }
 
         if include_environments
