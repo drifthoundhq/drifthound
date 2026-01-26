@@ -12,7 +12,17 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
+      # Write endpoint (existing)
       post "projects/:project_key/environments/:environment_key/checks", to: "drift_checks#create", as: :environment_checks
+
+      # Read endpoints (new)
+      resources :projects, only: [ :index, :show ], param: :key do
+        resources :environments, only: [ :index, :show ], param: :key do
+          member do
+            get :drift
+          end
+        end
+      end
     end
   end
 
