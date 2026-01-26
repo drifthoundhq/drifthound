@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/drifthoundhq/drifthound/compare/v0.5.0...v0.5.1) (2026-01-26)
+
+
+### Bug Fixes
+
+* Query projects with issues ([#111](https://github.com/drifthoundhq/drifthound/issues/111)) ([aafb19f](https://github.com/drifthoundhq/drifthound/commit/aafb19f7acce7677ff983a3d8f4316ddd2b137e8))
+
 ## [0.5.0](https://github.com/drifthoundhq/drifthound/compare/v0.4.0...v0.5.0) (2026-01-26)
 
 
