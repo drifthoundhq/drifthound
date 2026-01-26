@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/drifthoundhq/drifthound/compare/v0.4.0...v0.5.0) (2026-01-26)
+
+
+### Features
+
+* get endpoints ([#109](https://github.com/drifthoundhq/drifthound/issues/109)) ([7da92f5](https://github.com/drifthoundhq/drifthound/commit/7da92f54c4f636769bc7560fd9d9ffbee6924825))
+
 ## [0.4.0](https://github.com/drifthoundhq/drifthound/compare/v0.3.3...v0.4.0) (2025-12-21)
 
 
