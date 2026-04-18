@@ -1,5 +1,4 @@
 require_relative "boot"
-require_relative "../lib/drifthound/version"
 
 require "rails/all"
 
@@ -15,7 +14,7 @@ module Drifthound
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks drifthound])
+    config.autoload_lib(ignore: %w[assets tasks])
 
     # Custom directories for autoloading
     config.autoload_paths << Rails.root.join("app", "services")
