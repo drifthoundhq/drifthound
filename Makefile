@@ -4,7 +4,7 @@
 
 setup:
 	@bundle install
-	@bin/rails db:drop db:create db:migrate
+	@bin/rails db:drop db:create db:migrate db:seed
 
 setup-demo:
 	@bundle install
@@ -16,17 +16,23 @@ start:
 # ── Docker ────────────────────────────────────────────────────────────────────
 
 docker-setup:
-	@docker compose up -d --build
+	@docker compose up -d --build postgres
+	@echo "Waiting for postgres..."
+	@until docker compose exec postgres pg_isready -U drifthound > /dev/null 2>&1; do sleep 1; done
+	@docker compose run --rm app bin/rails db:drop db:create db:migrate db:seed
+	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@until docker compose exec app curl -sf http://localhost:3000/up > /dev/null 2>&1; do sleep 1; done
-	@docker compose exec app bin/rails db:drop db:create db:migrate
 	@echo "App is ready!"
 
 docker-setup-demo:
-	@docker compose up -d --build
+	@docker compose up -d --build postgres
+	@echo "Waiting for postgres..."
+	@until docker compose exec postgres pg_isready -U drifthound > /dev/null 2>&1; do sleep 1; done
+	@docker compose run --rm app bin/rails db:drop db:create db:migrate db:seed:demo
+	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@until docker compose exec app curl -sf http://localhost:3000/up > /dev/null 2>&1; do sleep 1; done
-	@docker compose exec app bin/rails db:drop db:create db:migrate db:seed:demo
 	@echo "App is ready!"
 
 docker-start:

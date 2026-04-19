@@ -43,13 +43,13 @@ Live demo site: https://demo.drifthound.io
 
 ### Non-Docker Setup
 
-1. **Empty instance** (no seed data)
+1. **Empty instance** — requires `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
   ```bash
   make setup
   make start
   ```
 
-2. **With demo data**
+2. **With demo data** — admin created automatically (`admin@drifthound.io` / `demo1234`)
   ```bash
   make setup-demo
   make start
@@ -72,12 +72,12 @@ Live demo site: https://demo.drifthound.io
 
 ### Docker Setup
 
-**Empty instance** (no seed data)
+**Empty instance** — requires `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
   ```bash
   make docker-setup
   ```
 
-**With demo data**
+**With demo data** — admin created automatically (`admin@drifthound.io` / `demo1234`)
   ```bash
   make docker-setup-demo
   ```
