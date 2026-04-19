@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.6.0](https://github.com/drifthoundhq/drifthound/compare/v0.5.1...v0.6.0) (2026-04-19)
+
+
+### Features
+
+* rework Slack notifications to always post new messages ([#134](https://github.com/drifthoundhq/drifthound/issues/134)) ([fdc2d97](https://github.com/drifthoundhq/drifthound/commit/fdc2d97f62f4533e36c6b923b0a9e65bdf40274b))
+
+
+### Bug Fixes
+
+* configure release-please to bump version file ([#128](https://github.com/drifthoundhq/drifthound/issues/128)) ([5e25f60](https://github.com/drifthoundhq/drifthound/commit/5e25f6021dfa8579c74033b36000c4d774e49298))
+* Configure release-please version marker ([#130](https://github.com/drifthoundhq/drifthound/issues/130)) ([1328be4](https://github.com/drifthoundhq/drifthound/commit/1328be4413778116478e3359f478c0321dc65e58))
+* point release workflow to config and manifest files ([#131](https://github.com/drifthoundhq/drifthound/issues/131)) ([79792fc](https://github.com/drifthoundhq/drifthound/commit/79792fccbc76586290cc808ee57a88e97ad8163c))
+* use extra-files generic updater for version.rb ([#133](https://github.com/drifthoundhq/drifthound/issues/133)) ([0975560](https://github.com/drifthoundhq/drifthound/commit/0975560b53b841b381124fed37c6396fab656e64))
+* use simple release type instead of generic ([#132](https://github.com/drifthoundhq/drifthound/issues/132)) ([083a299](https://github.com/drifthoundhq/drifthound/commit/083a299faf3744ed561767541f14cd27115654dc))
+
 ## [0.5.1](https://github.com/drifthoundhq/drifthound/compare/v0.5.0...v0.5.1) (2026-01-26)
 
 
