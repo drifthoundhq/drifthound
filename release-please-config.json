@@ -3,7 +3,12 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "version-file": "lib/drifthound/version.rb"
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "lib/drifthound/version.rb"
+        }
+      ]
     }
   }
 }
