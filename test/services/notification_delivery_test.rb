@@ -31,8 +31,7 @@ class NotificationDeliveryTest < ActiveSupport::TestCase
     delivery.deliver
   end
 
-  test "updates existing notification when state has external_id and should_update_existing" do
-    # Create existing notification state
+  test "delivers new message for resolved notification (never updates in place)" do
     @environment.notification_states.create!(
       channel: "slack",
       external_id: "1234567890.123456",
@@ -47,24 +46,9 @@ class NotificationDeliveryTest < ActiveSupport::TestCase
     )
 
     mock_adapter = mock
-    mock_adapter.expects(:update).with(instance_of(NotificationState), resolved_notification, @channel.config)
+    mock_adapter.expects(:deliver).with(resolved_notification, @channel.config, instance_of(NotificationState))
 
     delivery = NotificationDelivery.new(resolved_notification, @channel)
-    delivery.send(:instance_variable_set, :@adapter_class, mock_adapter)
-    delivery.deliver
-  end
-
-  test "delivers new notification even if state exists but no external_id" do
-    # Create state without external_id
-    @environment.notification_states.create!(
-      channel: "slack",
-      last_notified_status: nil
-    )
-
-    mock_adapter = mock
-    mock_adapter.expects(:deliver).with(@notification, @channel.config, instance_of(NotificationState))
-
-    delivery = NotificationDelivery.new(@notification, @channel)
     delivery.send(:instance_variable_set, :@adapter_class, mock_adapter)
     delivery.deliver
   end
@@ -232,15 +216,13 @@ class NotificationDeliveryTest < ActiveSupport::TestCase
     delivery.deliver
   end
 
-  test "deliver passes merged config with token to update method for resolved notifications" do
-    # Create existing notification state (error was sent)
+  test "deliver passes merged config with token to deliver method for resolved notifications" do
     @environment.notification_states.create!(
       channel: "slack",
       external_id: "1234567890.123456",
       last_notified_status: Environment.statuses["error"]
     )
 
-    # Channel without token (bug scenario that was failing)
     @channel.update!(config: { "channel" => "#alerts" })
 
     resolved_notification = Notification.new(
@@ -251,11 +233,10 @@ class NotificationDeliveryTest < ActiveSupport::TestCase
     )
 
     mock_adapter = mock
-    # Verify that update receives config WITH the token merged in
-    mock_adapter.expects(:update).with(
-      instance_of(NotificationState),
+    mock_adapter.expects(:deliver).with(
       resolved_notification,
-      has_entries("channel" => "#alerts", "token" => Rails.configuration.notifications[:slack][:token])
+      has_entries("channel" => "#alerts", "token" => Rails.configuration.notifications[:slack][:token]),
+      instance_of(NotificationState)
     )
 
     delivery = NotificationDelivery.new(resolved_notification, @channel)

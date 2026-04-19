@@ -152,7 +152,7 @@ class NotificationTest < ActiveSupport::TestCase
     assert_includes details[:url], "/projects/test-project/environments/production"
   end
 
-  test "should_update_existing? returns true for resolved events" do
+  test "resolution? returns true for resolved events" do
     drift_resolved = Notification.new(
       environment: @environment,
       event_type: :drift_resolved,
@@ -167,11 +167,11 @@ class NotificationTest < ActiveSupport::TestCase
       new_status: "ok"
     )
 
-    assert drift_resolved.should_update_existing?
-    assert error_resolved.should_update_existing?
+    assert drift_resolved.resolution?
+    assert error_resolved.resolution?
   end
 
-  test "should_update_existing? returns false for detected events" do
+  test "resolution? returns false for detected events" do
     drift_detected = Notification.new(
       environment: @environment,
       event_type: :drift_detected,
@@ -186,7 +186,7 @@ class NotificationTest < ActiveSupport::TestCase
       new_status: "error"
     )
 
-    assert_not drift_detected.should_update_existing?
-    assert_not error_detected.should_update_existing?
+    assert_not drift_detected.resolution?
+    assert_not error_detected.resolution?
   end
 end

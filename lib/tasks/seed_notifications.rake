@@ -36,6 +36,9 @@ namespace :db do
       end
       puts ""
 
+      # Force inline job processing so notifications are sent synchronously during seeding
+      ActiveJob::Base.queue_adapter = :inline
+
       puts "Creating test scenarios..."
       puts ""
 
