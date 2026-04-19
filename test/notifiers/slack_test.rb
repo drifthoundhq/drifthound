@@ -39,7 +39,7 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     Notifiers::Slack.deliver(@notification, @config, @state)
 
     @state.reload
-    assert_equal "1234567890.123456", @state.external_id
+    assert_nil @state.external_id
     assert_equal Environment.statuses["drift"], @state.last_notified_status
   end
 
@@ -89,12 +89,21 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     Notifiers::Slack.deliver(@notification, @config, @state)
   end
 
-  test "update modifies the original message in place" do
-    @state.update!(
-      external_id: "1234567890.123456",
-      external_channel_id: "C12345678",
-      metadata: { sent_at: 2.hours.ago.iso8601 }
-    )
+  test "deliver stores sent_at metadata for non-resolution events" do
+    mock_client = mock
+    mock_response = { "ts" => "1234567890.123456" }
+    ::Slack::Web::Client.expects(:new).returns(mock_client)
+    mock_client.expects(:chat_postMessage).returns(mock_response)
+
+    Notifiers::Slack.deliver(@notification, @config, @state)
+
+    @state.reload
+    assert_not_nil @state.metadata["sent_at"]
+    assert_equal Environment.statuses["drift"], @state.last_notified_status
+  end
+
+  test "deliver posts new message for drift_resolved event" do
+    @state.update!(metadata: { sent_at: 2.hours.ago.iso8601 })
 
     resolved_notification = Notification.new(
       environment: @environment,
@@ -104,19 +113,16 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     )
 
     mock_client = mock
-    mock_response = { "ts" => "1234567890.123456", "channel" => "C12345678" }
+    mock_response = { "ts" => "9999999999.999999" }
     ::Slack::Web::Client.expects(:new).with(token: "xoxb-test-token").returns(mock_client)
 
-    mock_client.expects(:chat_update).with do |args|
+    mock_client.expects(:chat_postMessage).with do |args|
       args[:channel] == "#infrastructure-alerts" &&
-      args[:ts] == "1234567890.123456" &&
-      args[:attachments].is_a?(Array) &&
       args[:attachments].first[:color] == "#36A64F" &&
-      args[:attachments].first[:blocks].is_a?(Array) &&
       args[:attachments].first[:fallback] == "✅ Drift Resolved"
     end.returns(mock_response)
 
-    Notifiers::Slack.update(@state, resolved_notification, @config)
+    Notifiers::Slack.deliver(resolved_notification, @config, @state)
 
     @state.reload
     assert_nil @state.external_id
@@ -124,11 +130,33 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     assert_not_nil @state.metadata["resolved_at"]
   end
 
-  test "update includes resolution time and duration" do
-    @state.update!(
-      external_id: "1234567890.123456",
-      metadata: { sent_at: 2.hours.ago.iso8601 }
+  test "deliver posts new message for error_resolved event" do
+    @state.update!(metadata: { sent_at: 1.hour.ago.iso8601 })
+
+    resolved_notification = Notification.new(
+      environment: @environment,
+      event_type: :error_resolved,
+      old_status: "error",
+      new_status: "ok"
     )
+
+    mock_client = mock
+    mock_response = { "ts" => "9999999999.999999" }
+    ::Slack::Web::Client.expects(:new).returns(mock_client)
+
+    mock_client.expects(:chat_postMessage).with do |args|
+      args[:attachments].first[:color] == "#36A64F" &&
+      args[:attachments].first[:fallback] == "✅ Error Resolved"
+    end.returns(mock_response)
+
+    Notifiers::Slack.deliver(resolved_notification, @config, @state)
+
+    @state.reload
+    assert_nil @state.external_id
+  end
+
+  test "deliver resolution message includes duration from sent_at" do
+    @state.update!(metadata: { sent_at: 2.hours.ago.iso8601 })
 
     resolved_notification = Notification.new(
       environment: @environment,
@@ -138,39 +166,16 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     )
 
     mock_client = mock
-    mock_response = { "ts" => "1234567890.123456" }
+    mock_response = { "ts" => "9999999999.999999" }
     ::Slack::Web::Client.expects(:new).returns(mock_client)
 
-    mock_client.expects(:chat_update).with do |args|
+    mock_client.expects(:chat_postMessage).with do |args|
       blocks = args[:attachments].first[:blocks]
-      # The resolved section should be blocks[2]
       resolved_text = blocks[2][:text][:text]
       resolved_text.include?("Resolved") && resolved_text.include?("2h 0m")
     end.returns(mock_response)
 
-    Notifiers::Slack.update(@state, resolved_notification, @config)
-  end
-
-  test "update uses external_id as ts for message update" do
-    @state.update!(external_id: "1234567890.123456")
-
-    resolved_notification = Notification.new(
-      environment: @environment,
-      event_type: :drift_resolved,
-      old_status: "drift",
-      new_status: "ok"
-    )
-
-    mock_client = mock
-    mock_response = { "ts" => "1234567890.123456" }
-    ::Slack::Web::Client.expects(:new).returns(mock_client)
-
-    mock_client.expects(:chat_update).with do |args|
-      args[:channel] == "#infrastructure-alerts" &&
-      args[:ts] == "1234567890.123456"
-    end.returns(mock_response)
-
-    Notifiers::Slack.update(@state, resolved_notification, @config)
+    Notifiers::Slack.deliver(resolved_notification, @config, @state)
   end
 
   test "build_full_url uses APP_URL from ENV" do

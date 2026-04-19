@@ -48,7 +48,7 @@ class Notification
     }
   end
 
-  def should_update_existing?
+  def resolution?
     [ :drift_resolved, :error_resolved ].include?(event_type)
   end
 

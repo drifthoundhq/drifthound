@@ -4,7 +4,7 @@ class NotificationState < ApplicationRecord
   validates :channel, presence: true, uniqueness: { scope: :environment_id }
 
   # Track that we sent a notification
-  def mark_sent!(external_id:, status:, metadata: {})
+  def mark_sent!(status:, metadata: {}, external_id: nil)
     update!(
       external_id: external_id,
       last_notified_status: Environment.statuses[status],

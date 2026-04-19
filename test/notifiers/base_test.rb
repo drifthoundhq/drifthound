@@ -26,19 +26,11 @@ class Notifiers::BaseTest < ActiveSupport::TestCase
     assert_match(/must implement #deliver/, error.message)
   end
 
-  test "raises NotImplementedError when update is not implemented" do
-    error = assert_raises(Notifiers::Base::NotImplementedError) do
-      Notifiers::Base.update(@state, @notification, @config)
-    end
-
-    assert_match(/must implement #update/, error.message)
-  end
-
-  test "track_delivery updates state with external_id and metadata" do
-    Notifiers::Base.track_delivery(@state, "external-123", @notification)
+  test "track_delivery updates state with status and sent_at metadata" do
+    Notifiers::Base.track_delivery(@state, @notification)
 
     @state.reload
-    assert_equal "external-123", @state.external_id
+    assert_nil @state.external_id
     assert_equal Environment.statuses["drift"], @state.last_notified_status
     assert_not_nil @state.metadata["sent_at"]
   end
