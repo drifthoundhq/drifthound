@@ -41,6 +41,9 @@ Live demo site: https://demo.drifthound.io
 
 ## Local Development
 
+> [!TIP]
+> **Demo mode** populates the app with realistic fake projects, environments, and drift history so you can browse all features without any real infrastructure. Admin credentials are created automatically (`admin@drifthound.io` / `demo1234`).
+
 ### Non-Docker Setup
 
 1. **Empty instance** — requires `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
@@ -49,7 +52,7 @@ Live demo site: https://demo.drifthound.io
   make start
   ```
 
-2. **With demo data** — admin created automatically (`admin@drifthound.io` / `demo1234`)
+2. **Demo mode**
   ```bash
   make setup-demo
   make start
