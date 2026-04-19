@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "packages": {
     ".": {
-      "release-type": "ruby",
+      "release-type": "generic",
       "version-file": "lib/drifthound/version.rb"
     }
   }
