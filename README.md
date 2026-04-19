@@ -39,26 +39,23 @@ Live demo site: https://demo.drifthound.io
 - PostgreSQL
 - Rails 8.0+
 
-## Local Delevelopment
+## Local Development
+
+> [!TIP]
+> **Demo mode** populates the app with realistic fake projects, environments, and drift history so you can browse all features without any real infrastructure. Admin credentials are created automatically (`admin@drifthound.io` / `demo1234`).
 
 ### Non-Docker Setup
 
-1. **Install Dependencies**
+1. **Empty instance** — requires `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
   ```bash
-  bundle install
-  ```
-2. **Start database**
-  ```bash
-  docker compose up postgres -d
+  make setup
+  make start
   ```
 
-3. **Database Setup**
+2. **Demo mode**
   ```bash
-  bin/rails db:create db:migrate db:seed
-  ```
-1. **Start the Server**
-  ```bash
-  bin/rails server
+  make setup-demo
+  make start
   ```
 
 #### Running Tests
@@ -71,19 +68,22 @@ Live demo site: https://demo.drifthound.io
   make prepare-test-db
   ```
 
-2. Unit Tests
+2. Run Tests
   ```bash
   make run-tests
   ```
 
 ### Docker Setup
 
-**Provision Database and Start Application**
+**Empty instance** — requires `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
   ```bash
-  make docker-db-setup
+  make docker-setup
   ```
-  This will start the services then create, migrate, and seed the database.
-  Also automatically creates the API token in the seeding step.
+
+**With demo data** — admin created automatically (`admin@drifthound.io` / `demo1234`)
+  ```bash
+  make docker-setup-demo
+  ```
 
 
 ## CLI Usage
