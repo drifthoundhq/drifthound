@@ -39,26 +39,20 @@ Live demo site: https://demo.drifthound.io
 - PostgreSQL
 - Rails 8.0+
 
-## Local Delevelopment
+## Local Development
 
 ### Non-Docker Setup
 
-1. **Install Dependencies**
+1. **Empty instance** (no seed data)
   ```bash
-  bundle install
-  ```
-2. **Start database**
-  ```bash
-  docker compose up postgres -d
+  make setup
+  make start
   ```
 
-3. **Database Setup**
+2. **With demo data**
   ```bash
-  bin/rails db:create db:migrate db:seed
-  ```
-1. **Start the Server**
-  ```bash
-  bin/rails server
+  make setup-demo
+  make start
   ```
 
 #### Running Tests
@@ -71,19 +65,22 @@ Live demo site: https://demo.drifthound.io
   make prepare-test-db
   ```
 
-2. Unit Tests
+2. Run Tests
   ```bash
   make run-tests
   ```
 
 ### Docker Setup
 
-**Provision Database and Start Application**
+**Empty instance** (no seed data)
   ```bash
-  make docker-db-setup
+  make docker-setup
   ```
-  This will start the services then create, migrate, and seed the database.
-  Also automatically creates the API token in the seeding step.
+
+**With demo data**
+  ```bash
+  make docker-setup-demo
+  ```
 
 
 ## CLI Usage
