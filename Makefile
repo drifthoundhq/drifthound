@@ -16,11 +16,11 @@ start:
 	@bin/rails server
 
 docker-db-setup:
-	@docker compose up -d
+	@docker compose up -d --build
 	@docker compose exec app bin/rails db:drop db:create db:migrate
 	@echo "Waiting for app to be ready..."
 	@until docker compose exec app curl -sf http://localhost:3000/up > /dev/null 2>&1; do sleep 1; done
-	@docker compose exec app bin/rails db:seed:demo
+	@docker compose exec app bin/rails db:seed:notifications
 	@echo "App is ready!"
 
 docker-start:
