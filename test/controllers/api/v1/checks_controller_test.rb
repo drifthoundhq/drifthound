@@ -211,7 +211,8 @@ class Api::V1::ChecksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal 6, response.parsed_body["checks"].size
-    assert_operator queries.count { |q| q.include?("drift_checks") }, :<=, 1
-    assert_operator queries.count { |q| q.include?(%("environments")) && !q.include?("drift_checks") }, :<=, 1
+    assert_equal 1, queries.count { |q| q.include?("drift_checks") }
+    assert_equal 1, queries.count { |q| q.include?(%("environments")) && !q.include?("drift_checks") }
+    assert_equal 1, queries.count { |q| q.include?(%("projects")) }
   end
 end
