@@ -71,6 +71,34 @@ class Api::V1::ChecksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ middle.id ], response.parsed_body["checks"].map { |c| c["id"] }
   end
 
+  test "timestamps without an offset are read as UTC whatever the server time zone" do
+    check = create_check(@env, at: Time.utc(2026, 1, 2, 2))
+    original_tz = ENV["TZ"]
+    ENV["TZ"] = "America/New_York"
+
+    travel_to(Time.utc(2026, 1, 3)) do
+      environment_checks(since: "2026-01-02T00:00:00", until: "2026-01-02T03:00:00")
+    end
+
+    assert_response :success
+    assert_equal [ check.id ], response.parsed_body["checks"].map { |c| c["id"] }
+  ensure
+    ENV["TZ"] = original_tz
+  end
+
+  test "project and environment filters must be single keys" do
+    [
+      { project: [ @project.key, @other_project.key ] },
+      { environment: [ "prod", "staging" ] },
+      { project: { key: @project.key } }
+    ].each do |params|
+      get api_v1_checks_path, params: params, headers: @auth_header
+
+      assert_response :bad_request, "expected 400 for #{params.inspect}"
+      assert response.parsed_body["error"].present?
+    end
+  end
+
   test "limit and cursor paginate without gaps or duplicates" do
     ids = 5.times.map { |i| create_check(@env, at: (10 - i).hours.ago).id }.reverse
 

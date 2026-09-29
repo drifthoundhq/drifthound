@@ -55,14 +55,16 @@ module Api
         end
 
         scope = DriftCheck.all
+        project_key = key_param(:project)
+        environment_key = key_param(:environment)
 
-        if params[:project].present?
-          project = Project.find_by!(key: params[:project])
+        if project_key
+          project = Project.find_by!(key: project_key)
           scope = scope.where(environment_id: project.environments.select(:id))
         end
 
-        if params[:environment].present?
-          environments = Environment.where(key: params[:environment])
+        if environment_key
+          environments = Environment.where(key: environment_key)
           environments = environments.where(project_id: project.id) if project
           raise ActiveRecord::RecordNotFound unless environments.exists?
 
@@ -70,6 +72,16 @@ module Api
         end
 
         scope
+      end
+
+      # Only a plain string is a key; arrays and nested params are rejected
+      # instead of turning into IN filters or reaching the query builder.
+      def key_param(name)
+        value = params[name]
+        return nil if value.blank?
+        raise InvalidParameter, "#{name} must be a single key" unless value.is_a?(String)
+
+        value
       end
 
       def parse_limit
@@ -87,13 +99,10 @@ module Api
         value = params[name]
         return nil if value.blank?
 
-        value = value.to_s
-        if value.match?(/\A\d{4}-\d{2}-\d{2}\z/)
-          Date.iso8601(value).in_time_zone("UTC")
-        else
-          Time.iso8601(value)
-        end
-      rescue ArgumentError, TypeError, Date::Error
+        # Parse in UTC so a date or a timestamp without an offset does not
+        # depend on the server's time zone.
+        ActiveSupport::TimeZone["UTC"].iso8601(value.to_s)
+      rescue ArgumentError, TypeError
         raise InvalidParameter, "#{name} must be an ISO 8601 date or timestamp"
       end
 
