@@ -44,7 +44,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 # Slack API client [https://github.com/slack-ruby/slack-ruby-client]
-gem "slack-ruby-client", "~> 3.1"
+gem "slack-ruby-client", "~> 3.2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
