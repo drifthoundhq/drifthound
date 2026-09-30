@@ -92,6 +92,70 @@ curl -X POST \
 | `error` | Error running drift check |
 | `unknown` | Initial state or unable to determine |
 
+### List Drift Check History
+
+Read past drift checks, for example to chart drift trends in an external dashboard. Results are ordered newest first.
+
+**Endpoints:**
+
+- `GET /api/v1/projects/:project_key/environments/:environment_key/checks` - checks for one environment
+- `GET /api/v1/checks` - checks across all projects
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `since` | ISO 8601 date or timestamp | No | Only checks created at or after this time (a date or a timestamp without an offset is read as UTC) |
+| `until` | ISO 8601 date or timestamp | No | Only checks created before this time (a date or a timestamp without an offset is read as UTC) |
+| `limit` | integer | No | Page size, 1 to 500 (default: 50) |
+| `cursor` | string | No | The `next_cursor` value from the previous page |
+| `project` | string | No | `GET /api/v1/checks` only: filter by project key |
+| `environment` | string | No | `GET /api/v1/checks` only: filter by environment key |
+
+**Example Request:**
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  "http://localhost:3000/api/v1/projects/my-project/environments/my-env/checks?since=2025-11-01&limit=100"
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "checks": [
+    {
+      "id": 123,
+      "project_key": "my-project",
+      "environment_key": "my-env",
+      "status": "drift",
+      "add_count": 2,
+      "change_count": 1,
+      "destroy_count": 0,
+      "duration": 8,
+      "execution_number": 42,
+      "created_at": "2025-11-27T10:30:00Z",
+      "change_summary": "2 to add, 1 to change"
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "has_more": true,
+    "next_cursor": "MjAyNS0xMS0yN1QxMDozMDowMC4wMDAwMDBaLDEyMw"
+  }
+}
+```
+
+To fetch the next page, repeat the request with the same filters and `cursor` set to `next_cursor`. When `has_more` is `false`, `next_cursor` is `null`. The cursor points at a position in the list, so checks submitted while you page through do not cause duplicates or gaps.
+
+History responses do not include `raw_output`. Use `GET /api/v1/projects/:project_key/environments/:key/drift` to read the full plan output of the latest check.
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid `since`, `until`, `limit` or `cursor`, or a `project` or `environment` that is not a single key
+- `401 Unauthorized` - Missing or invalid API token
+- `404 Not Found` - Unknown project or environment
+
 ## Advanced Features
 
 ### Notification Channel Configuration

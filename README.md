@@ -130,6 +130,13 @@ curl -X POST \
   }'
 ```
 
+Read past drift checks (newest first, paginated, without plan output) to chart trends elsewhere:
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  "http://localhost:3000/api/v1/checks?project=my-project&since=2025-11-01"
+```
+
 **Generate an API Token:**
 
 1. Log in as admin at `/login`
