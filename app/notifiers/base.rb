@@ -1,7 +1,6 @@
 # Base class for all notification channel adapters
 # Subclasses must implement:
 # - self.deliver(notification, config, state)
-# - self.update(state, notification, config)
 
 module Notifiers
 end
@@ -13,16 +12,11 @@ class Notifiers::Base
     raise NotImplementedError, "#{self} must implement #deliver"
   end
 
-  def self.update(state, notification, config)
-    raise NotImplementedError, "#{self} must implement #update"
-  end
-
   protected
 
-  # Helper to track successful delivery
-  def self.track_delivery(state, external_id, notification)
+  # Helper to track successful delivery (stores sent_at for duration calculation on resolution)
+  def self.track_delivery(state, notification)
     state.mark_sent!(
-      external_id: external_id,
       status: notification.new_status,
       metadata: { sent_at: Time.current }
     )
