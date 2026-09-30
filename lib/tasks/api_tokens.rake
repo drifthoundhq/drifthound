@@ -1,10 +1,12 @@
 namespace :api_tokens do
-  desc "Generate a new API token"
-  task :generate, [ :name ] => :environment do |t, args|
+  desc "Generate a new API token (access: write, read_plans or read, default write)"
+  task :generate, [ :name, :access ] => :environment do |t, args|
     name = args[:name] || "default"
-    token = ApiToken.create!(name: name)
+    access = args[:access] || "write"
+    token = ApiToken.create!(name: name, access: access)
     puts "API Token created successfully!"
     puts "Name: #{token.name}"
+    puts "Access: #{token.access}"
     puts "Token: #{token.token}"
     puts ""
     puts "Use this token in the Authorization header:"
@@ -20,7 +22,7 @@ namespace :api_tokens do
       puts "API Tokens:"
       puts "-" * 60
       tokens.each do |token|
-        puts "ID: #{token.id} | Name: #{token.name} | Created: #{token.created_at}"
+        puts "ID: #{token.id} | Name: #{token.name} | Access: #{token.access} | Created: #{token.created_at}"
       end
     end
   end

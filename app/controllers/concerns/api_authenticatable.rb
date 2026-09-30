@@ -3,6 +3,7 @@ module ApiAuthenticatable
 
   included do
     before_action :authenticate_api_token!
+    before_action :enforce_api_token_access!
   end
 
   private
@@ -14,6 +15,13 @@ module ApiAuthenticatable
     unless @current_api_token
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
+  end
+
+  def enforce_api_token_access!
+    return if request.get? || request.head?
+    return unless @current_api_token.read_only?
+
+    render json: { error: "Forbidden: this API token is read-only" }, status: :forbidden
   end
 
   def extract_token_from_header

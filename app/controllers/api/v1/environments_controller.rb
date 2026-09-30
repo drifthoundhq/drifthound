@@ -23,7 +23,7 @@ module Api
       end
 
       # GET /api/v1/projects/:project_key/environments/:key/drift
-      # Returns the latest drift check with full raw_output
+      # Returns the latest drift check, with raw_output when the token may read plan output
       def drift
         environment = @project.environments.find_by!(key: params[:key])
         latest_check = environment.drift_checks.order(created_at: :desc).first
@@ -81,11 +81,18 @@ module Api
       end
 
       def drift_check_json(check)
-        drift_check_summary_json(check).merge(
-          raw_output: check.raw_output,
+        json = drift_check_summary_json(check).merge(
           environment_key: check.environment.key,
           project_key: check.project.key
         )
+
+        # Tokens without plan access still get the summary; raw_output_restricted
+        # tells "hidden" apart from a check that had no output.
+        if current_api_token.can_read_plan_output?
+          json.merge(raw_output: check.raw_output)
+        else
+          json.merge(raw_output_restricted: true)
+        end
       end
     end
   end

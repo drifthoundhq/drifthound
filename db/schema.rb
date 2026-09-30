@@ -10,11 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_171521) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_29_175231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "api_tokens", force: :cascade do |t|
+    t.string "access", default: "write", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.string "token", null: false
@@ -34,6 +35,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_171521) do
     t.integer "status"
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_drift_checks_on_created_at"
+    t.index ["environment_id", "created_at", "id"], name: "index_drift_checks_on_environment_id_and_created_at_and_id"
     t.index ["environment_id", "execution_number"], name: "index_drift_checks_on_environment_id_and_execution_number", unique: true
     t.index ["environment_id"], name: "index_drift_checks_on_environment_id"
   end

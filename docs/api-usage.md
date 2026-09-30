@@ -92,6 +92,70 @@ curl -X POST \
 | `error` | Error running drift check |
 | `unknown` | Initial state or unable to determine |
 
+### List Drift Check History
+
+Read past drift checks, for example to chart drift trends in an external dashboard. Results are ordered newest first.
+
+**Endpoints:**
+
+- `GET /api/v1/projects/:project_key/environments/:environment_key/checks` - checks for one environment
+- `GET /api/v1/checks` - checks across all projects
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `since` | ISO 8601 date or timestamp | No | Only checks created at or after this time (a date or a timestamp without an offset is read as UTC) |
+| `until` | ISO 8601 date or timestamp | No | Only checks created before this time (a date or a timestamp without an offset is read as UTC) |
+| `limit` | integer | No | Page size, 1 to 500 (default: 50) |
+| `cursor` | string | No | The `next_cursor` value from the previous page |
+| `project` | string | No | `GET /api/v1/checks` only: filter by project key |
+| `environment` | string | No | `GET /api/v1/checks` only: filter by environment key |
+
+**Example Request:**
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  "http://localhost:3000/api/v1/projects/my-project/environments/my-env/checks?since=2025-11-01&limit=100"
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "checks": [
+    {
+      "id": 123,
+      "project_key": "my-project",
+      "environment_key": "my-env",
+      "status": "drift",
+      "add_count": 2,
+      "change_count": 1,
+      "destroy_count": 0,
+      "duration": 8,
+      "execution_number": 42,
+      "created_at": "2025-11-27T10:30:00Z",
+      "change_summary": "2 to add, 1 to change"
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "has_more": true,
+    "next_cursor": "MjAyNS0xMS0yN1QxMDozMDowMC4wMDAwMDBaLDEyMw"
+  }
+}
+```
+
+To fetch the next page, repeat the request with the same filters and `cursor` set to `next_cursor`. When `has_more` is `false`, `next_cursor` is `null`. The cursor points at a position in the list, so checks submitted while you page through do not cause duplicates or gaps.
+
+History responses do not include `raw_output`. Use `GET /api/v1/projects/:project_key/environments/:key/drift` to read the full plan output of the latest check.
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid `since`, `until`, `limit` or `cursor`, or a `project` or `environment` that is not a single key
+- `401 Unauthorized` - Missing or invalid API token
+- `404 Not Found` - Unknown project or environment
+
 ## Advanced Features
 
 ### Notification Channel Configuration
@@ -139,20 +203,52 @@ DriftHound provides a web-based interface for managing API tokens. Only admin us
 
 1. Log in as an admin user
 2. Click **API Tokens** in the navigation bar
-3. Enter a name for your token (e.g., "CI/CD Pipeline") and click **Create Token**
+3. Enter a name for your token (e.g., "CI/CD Pipeline"), choose its access level, and click **Create Token**
 4. **Important:** Copy the token immediately - it will only be shown once!
 
 The API Tokens page also displays:
 - A list of all existing tokens with partial token previews
+- The access level of each token
 - Creation dates for each token
 - Delete buttons to revoke tokens
 - Usage examples showing how to authenticate API requests
+
+### Token Access Levels
+
+Each token has an access level:
+
+| Access | Allowed requests | Use for |
+|--------|------------------|---------|
+| `write` (default) | All API endpoints, including submitting drift checks | CI/CD pipelines and the CLI |
+| `read_plans` | `GET` and `HEAD` requests only, including plan output | Tools that need to show or analyse plans |
+| `read` | `GET` and `HEAD` requests only, without plan output | Dashboards and reporting tools that only read drift status |
+
+A `read` or `read_plans` token that sends any other request (for example `POST .../checks`) receives `403 Forbidden`:
+
+```json
+{ "error": "Forbidden: this API token is read-only" }
+```
+
+Plan output can contain sensitive values, so only `read_plans` and `write` tokens receive it. For a `read` token, `GET .../environments/:key/drift` still returns the check summary, without `raw_output` and with `"raw_output_restricted": true`.
+
+Tokens created before access levels were introduced keep `write` access.
+
+### Using the Rake Tasks
+
+```bash
+bin/rails "api_tokens:generate[CI Pipeline]"
+bin/rails "api_tokens:generate[Reporting Dashboard,read]"
+bin/rails "api_tokens:generate[Plan Viewer,read_plans]"
+bin/rails api_tokens:list
+bin/rails "api_tokens:revoke[42]"
+```
 
 ### Token Security
 
 - Tokens are only displayed once at creation time
 - Store tokens securely (e.g., in CI/CD secrets, environment variables)
 - Use descriptive names to identify token purposes
+- Give tools that only read data a `read` token
 - Revoke tokens that are no longer needed
 
 ## Health Check Endpoint

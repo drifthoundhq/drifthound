@@ -16,6 +16,8 @@
         <div class="form-row-inline">
           <span class="inline-label">Name:</span>
           <%= form.text_field :name, class: "form-control form-control-inline", placeholder: "e.g., CI/CD Pipeline" %>
+          <span class="inline-label">Access:</span>
+          <%= form.select :access, ApiToken.access_options, {}, class: "form-control form-control-inline form-control-access" %>
           <%= form.submit "Create Token", class: "btn btn-primary" %>
         </div>
         <% if @new_api_token.errors.any? %>
@@ -60,6 +62,7 @@
         <div class="tokens-header">
           <span>Name</span>
           <span>Token</span>
+          <span>Access</span>
           <span>Created</span>
           <span style="text-align: right;">Actions</span>
         </div>
@@ -71,6 +74,9 @@
             </span>
             <span class="col-token">
               <code class="token-preview"><%= token.token.first(8) %>...<%= token.token.last(4) %></code>
+            </span>
+            <span class="col-access">
+              <%= token.access_label %>
             </span>
             <span class="col-created">
               <%= token.created_at.strftime("%b %d, %Y") %>
@@ -94,6 +100,7 @@
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"status": "ok", "add_count": 0, "change_count": 0, "destroy_count": 0}'</code></pre>
+      <p>Read-only tokens can call the <code>GET</code> endpoints but receive <code>403 Forbidden</code> when submitting drift checks. Only tokens with plan output access get <code>raw_output</code>.</p>
     </div>
   </section>
 </div>
