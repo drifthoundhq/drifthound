@@ -69,5 +69,5 @@ group :test do
   # Mocking and stubbing [https://github.com/freerange/mocha]
   gem "mocha"
   # Pin minitest to 5.x — minitest 6 changed the run method signature incompatibly with Rails 8.1
-  gem "minitest", "~> 5.25"
+  gem "minitest", "~> 6.0"
 end
