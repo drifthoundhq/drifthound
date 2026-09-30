@@ -105,8 +105,8 @@ Read past drift checks, for example to chart drift trends in an external dashboa
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `since` | ISO 8601 date or timestamp | No | Only checks created at or after this time (a date means midnight UTC) |
-| `until` | ISO 8601 date or timestamp | No | Only checks created before this time (a date means midnight UTC) |
+| `since` | ISO 8601 date or timestamp | No | Only checks created at or after this time (a date or a timestamp without an offset is read as UTC) |
+| `until` | ISO 8601 date or timestamp | No | Only checks created before this time (a date or a timestamp without an offset is read as UTC) |
 | `limit` | integer | No | Page size, 1 to 500 (default: 50) |
 | `cursor` | string | No | The `next_cursor` value from the previous page |
 | `project` | string | No | `GET /api/v1/checks` only: filter by project key |
@@ -152,7 +152,7 @@ History responses do not include `raw_output`. Use `GET /api/v1/projects/:projec
 
 **Error Responses:**
 
-- `400 Bad Request` - Invalid `since`, `until`, `limit` or `cursor`
+- `400 Bad Request` - Invalid `since`, `until`, `limit` or `cursor`, or a `project` or `environment` that is not a single key
 - `401 Unauthorized` - Missing or invalid API token
 - `404 Not Found` - Unknown project or environment
 
