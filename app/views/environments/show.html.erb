@@ -88,10 +88,11 @@
       cascade_warning: "This will also delete all #{@drift_checks.count} drift check(s) and their history." %>
   </section>
 
+  <% can_view_plan = policy(@environment).view_plan? %>
   <section class="check-history" data-controller="plan-noise">
     <div class="check-history-header">
       <h2>Check History</h2>
-      <% if @drift_checks.any? { |check| check.raw_output.present? } %>
+      <% if can_view_plan && @drift_checks.any? { |check| check.raw_output.present? } %>
         <label class="plan-noise-toggle">
           <input type="checkbox" data-plan-noise-target="toggle" data-action="plan-noise#change">
           Mute "(known after apply)" values in plans
@@ -113,7 +114,6 @@
           <span style="text-align: right;">Details</span>
         </div>
         <% total_checks = @drift_checks.size %>
-        <% can_view_plan = policy(@environment).view_plan? %>
         <% @drift_checks.each_with_index do |check, idx| %>
           <div class="check-row" data-controller="expandable">
             <div class="check-summary" data-action="click->expandable#toggle">

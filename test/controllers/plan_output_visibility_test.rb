@@ -30,6 +30,7 @@ class PlanOutputVisibilityTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, PLAN_TEXT
     assert_not_includes response.body, "Plan output restricted"
+    assert_includes response.body, "Mute"
   end
 
   test "anonymous public viewer sees plan output with the default minimum role" do
@@ -124,5 +125,6 @@ class PlanOutputVisibilityTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, PLAN_TEXT
     assert_includes response.body, "Plan output restricted"
     assert_includes response.body, "2 to add"
+    assert_not_includes response.body, "Mute"
   end
 end
