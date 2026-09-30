@@ -195,4 +195,19 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
 
     assert_equal "http://localhost:3000/projects/test/environments/prod", url
   end
+
+  test "escapes Slack control characters in project and environment names" do
+    @project.update!(name: "R&D <team>")
+    @environment.update!(name: "<!channel> <https://phish.example|Fix it here>")
+    state = @environment.notification_states.first
+
+    [
+      Notifiers::Slack.build_blocks(@notification),
+      Notifiers::Slack.build_resolved_blocks(@notification, state)
+    ].each do |blocks|
+      text = blocks.find { |block| block.dig(:text, :type) == "mrkdwn" }.dig(:text, :text)
+
+      assert_equal "*Project:* R&amp;D &lt;team&gt;   *Environment:* &lt;!channel&gt; &lt;https://phish.example|Fix it here&gt;", text
+    end
+  end
 end

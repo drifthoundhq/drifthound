@@ -51,7 +51,7 @@ class Notifiers::Slack < Notifiers::Base
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*Project:* #{details[:project]}   *Environment:* #{details[:environment]}"
+            text: "*Project:* #{escape_mrkdwn(details[:project])}   *Environment:* #{escape_mrkdwn(details[:environment])}"
           }
         }
       ]
@@ -110,7 +110,7 @@ class Notifiers::Slack < Notifiers::Base
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*Project:* #{details[:project]}   *Environment:* #{details[:environment]}"
+            text: "*Project:* #{escape_mrkdwn(details[:project])}   *Environment:* #{escape_mrkdwn(details[:environment])}"
           }
         },
         {
@@ -134,6 +134,12 @@ class Notifiers::Slack < Notifiers::Base
           ]
         }
       ]
+    end
+
+    # Names are free text from the API. Escaping Slack's control characters
+    # keeps "<!channel>" or "<url|label>" from turning into pings or links.
+    def self.escape_mrkdwn(text)
+      text.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
     end
 
     def self.build_full_url(path)

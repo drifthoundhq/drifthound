@@ -59,7 +59,7 @@ curl -X POST \
 | `destroy_count` | integer | No | Number of resources to destroy |
 | `duration` | float | No | Execution duration in seconds |
 | `raw_output` | text | No | Full Terraform plan output |
-| `environment_name` | string | No | Display name for the environment. Defaults to the titleized `environment_key` when the environment is created. When provided, it is applied on every call, so it also renames an existing environment. When omitted, the current name is kept. At most 255 characters; a longer value is rejected with `422 Unprocessable Entity` and nothing is created or renamed. |
+| `environment_name` | string | No | Display name for the environment. Defaults to the titleized `environment_key` when the environment is created. When provided, it is applied on every call, so it also renames an existing environment. When omitted, the current name is kept. Must be a string; surrounding whitespace is removed. At most 255 characters; a longer or non-string value is rejected with `422 Unprocessable Entity` and nothing is created or renamed. The last name sent wins, so if several pipelines report the same environment, send the same name from all of them. |
 | `directory` | string | No | Directory where Terraform is executed. Only set on first call; subsequent calls won't overwrite. Update via GUI. |
 | `repository` | string | No | Repository URL (e.g., `https://github.com/org/repo`). Only set on first call; subsequent calls won't overwrite. Update via GUI. |
 | `branch` | string | No | Repository branch (default: `main`). Only set on first call if different from default; update via GUI. |

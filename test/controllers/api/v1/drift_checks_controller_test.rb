@@ -117,6 +117,30 @@ class Api::V1::DriftChecksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Prod Eu West 1", environment.reload.name
   end
 
+  test "rejects a non-string environment_name" do
+    [ [ "a", "b" ], { "name" => "Prod" }, 42 ].each do |value|
+      assert_no_difference [ "Project.count", "Environment.count", "DriftCheck.count" ] do
+        post api_v1_environment_checks_path("named-project", "prod-eu-west-1"),
+          params: { status: "ok", environment_name: value },
+          headers: @auth_header,
+          as: :json
+      end
+
+      assert_response :unprocessable_entity, "expected 422 for #{value.inspect}"
+      assert_equal "environment_name must be a string", response.parsed_body["error"]
+    end
+  end
+
+  test "strips surrounding whitespace from environment_name" do
+    post api_v1_environment_checks_path("named-project", "prod-eu-west-1"),
+      params: { status: "ok", environment_name: "  Production EU West 1  " },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+    assert_equal "Production EU West 1", Project.find_by(key: "named-project").environments.find_by(key: "prod-eu-west-1").name
+  end
+
   test "accepts an environment_name of exactly 255 characters" do
     post api_v1_environment_checks_path("named-project", "prod-eu-west-1"),
       params: { status: "ok", environment_name: "a" * 255 },
