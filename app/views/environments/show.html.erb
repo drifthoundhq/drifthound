@@ -88,8 +88,16 @@
       cascade_warning: "This will also delete all #{@drift_checks.count} drift check(s) and their history." %>
   </section>
 
-  <section class="check-history">
-    <h2>Check History</h2>
+  <section class="check-history" data-controller="plan-noise">
+    <div class="check-history-header">
+      <h2>Check History</h2>
+      <% if @drift_checks.any? { |check| check.raw_output.present? } %>
+        <label class="plan-noise-toggle">
+          <input type="checkbox" data-plan-noise-target="toggle" data-action="plan-noise#change">
+          Mute "(known after apply)" values in plans
+        </label>
+      <% end %>
+    </div>
     <% if @drift_checks.empty? %>
       <div class="empty-state">
         <p>No drift checks recorded yet.</p>
@@ -150,7 +158,7 @@
             </div>
             <% if check.raw_output.present? %>
               <div class="check-output" data-expandable-target="content" hidden>
-                <pre><code><%= check.raw_output %></code></pre>
+                <pre><code><%= colorize_plan_output(check.raw_output) %></code></pre>
               </div>
             <% end %>
           </div>

@@ -948,6 +948,69 @@ h1, h2, h3 {
   word-break: break-all;
 }
 
+/* Plan output, styled like `terraform plan` in a colour terminal: only the
+   action symbol is coloured. Tuned for the dark .check-output background. */
+.check-output .plan-symbol-add {
+  color: #4ade80;
+}
+
+.check-output .plan-symbol-destroy,
+.check-output .plan-forces-replacement {
+  color: #f87171;
+}
+
+.check-output .plan-symbol-change {
+  color: #facc15;
+}
+
+.check-output .plan-symbol-read {
+  color: #22d3ee;
+}
+
+/* Brighter as well as bold, like terminals render bold, so headers stand out
+   even when the monospace font has no bold weight. */
+.check-output .plan-address,
+.check-output .plan-summary {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.check-output .plan-danger {
+  color: #f87171;
+  font-weight: 700;
+}
+
+.check-output .plan-dim {
+  color: #94a3b8;
+}
+
+/* Muting is a viewer preference, toggled from the Check History header */
+.check-history.mute-plan-noise .check-output .plan-noise {
+  color: #94a3b8;
+}
+
+.check-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.check-history-header h2 {
+  margin-bottom: 0;
+}
+
+.plan-noise-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
 /* ===== Environments List ===== */
 .environments-list {
   overflow-x: auto;
@@ -2463,6 +2526,11 @@ h1, h2, h3 {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.token-form-inline .form-control-access {
+  flex: 0 0 auto;
+  min-width: 220px;
+}
+
 .token-form-inline .btn {
   margin-left: auto;
   white-space: nowrap;
@@ -2549,7 +2617,7 @@ h1, h2, h3 {
 
 .tokens-header {
   display: grid;
-  grid-template-columns: 1fr 180px 120px 80px;
+  grid-template-columns: 1fr 180px 200px 120px 80px;
   column-gap: 1rem;
   padding: 0.75rem 1.5rem;
   background-color: #e5e7eb;
@@ -2562,7 +2630,7 @@ h1, h2, h3 {
 
 .token-row {
   display: grid;
-  grid-template-columns: 1fr 180px 120px 80px;
+  grid-template-columns: 1fr 180px 200px 120px 80px;
   column-gap: 1rem;
   padding: 1rem 1.5rem;
   align-items: center;
@@ -2619,6 +2687,10 @@ h1, h2, h3 {
   overflow-x: auto;
 }
 
+.guide-card pre + p {
+  margin: 1rem 0 0;
+}
+
 .guide-card pre code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
   font-size: 0.8rem;
@@ -2638,6 +2710,7 @@ h1, h2, h3 {
   }
 
   .col-token,
+  .tokens-list .col-access,
   .tokens-list .col-created {
     display: none;
   }

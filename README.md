@@ -130,11 +130,20 @@ curl -X POST \
   }'
 ```
 
+Read past drift checks (newest first, paginated, without plan output) to chart trends elsewhere:
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  "http://localhost:3000/api/v1/checks?project=my-project&since=2025-11-01"
+```
+
 **Generate an API Token:**
 
 1. Log in as admin at `/login`
 2. Click **API Tokens** in the navigation bar
 3. Create a new token and copy it (it's only shown once!)
+
+Tokens are read and write by default. Choose **Read only** for dashboards or reporting tools that only need the `GET` endpoints, or **Read only, with plan output** if they also need to read plans. Both receive `403 Forbidden` on writes.
 
 📖 See [docs/api-usage.md](docs/api-usage.md) for complete API documentation, including advanced features and examples.
 
