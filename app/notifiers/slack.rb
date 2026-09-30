@@ -5,10 +5,13 @@ class Notifiers::Slack < Notifiers::Base
     def self.deliver(notification, config, state)
       client = build_client(config)
 
-      # Build the blocks with color indicator in the header
-      blocks = build_blocks(notification)
+      blocks = if notification.resolution?
+        build_resolved_blocks(notification, state)
+      else
+        build_blocks(notification)
+      end
 
-      response = client.chat_postMessage(
+      client.chat_postMessage(
         channel: config["channel"],
         attachments: [
           {
@@ -19,28 +22,11 @@ class Notifiers::Slack < Notifiers::Base
         ]
       )
 
-      track_delivery(state, response["ts"], notification)
-    end
-
-    def self.update(state, notification, config)
-      client = build_client(config)
-
-      blocks = build_resolved_blocks(notification, state)
-
-      # Update the original message in place to show resolution
-      client.chat_update(
-        channel: config["channel"],
-        ts: state.external_id,
-        attachments: [
-          {
-            color: "#36A64F",  # Green for resolved
-            blocks: blocks,
-            fallback: "#{notification.icon} #{notification.title}"
-          }
-        ]
-      )
-
-      clear_tracking(state)
+      if notification.resolution?
+        clear_tracking(state)
+      else
+        track_delivery(state, notification)
+      end
     end
 
     private
@@ -70,7 +56,6 @@ class Notifiers::Slack < Notifiers::Base
         }
       ]
 
-      # Add changes section if drift detected
       if details[:changes].present?
         blocks << {
           type: "section",
@@ -81,7 +66,6 @@ class Notifiers::Slack < Notifiers::Base
         }
       end
 
-      # Add link button
       blocks << {
         type: "actions",
         elements: [
@@ -103,7 +87,6 @@ class Notifiers::Slack < Notifiers::Base
       details = notification.details
       resolved_at = Time.current.strftime("%Y-%m-%d %H:%M UTC")
 
-      # Get original sent time from metadata
       sent_at = state.metadata["sent_at"]
       duration_text = if sent_at
         duration = Time.current - Time.parse(sent_at)
@@ -154,8 +137,6 @@ class Notifiers::Slack < Notifiers::Base
     end
 
     def self.build_full_url(path)
-      # In production, this should use the actual domain
-      # For now, return the path - will be configured via ENV var
       base_url = ENV.fetch("APP_URL", "http://localhost:3000")
       "#{base_url}#{path}"
     end

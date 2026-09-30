@@ -1,3 +1,3 @@
 module Drifthound
-  Version = "0.5.1"
+  Version = "0.7.0" # x-release-please-version
 end
