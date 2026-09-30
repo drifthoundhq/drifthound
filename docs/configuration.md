@@ -138,7 +138,7 @@ PLAN_OUTPUT_MIN_ROLE=editor
 - Anonymous visitors in public mode count as below `viewer`: they see plan output only when the minimum role is `viewer`.
 - The value is case-insensitive. Any other value stops the application at boot with an error.
 - This setting applies to the web UI only. The token-authenticated API endpoint `GET /api/v1/projects/:project_key/environments/:key/drift` still returns `raw_output` to API tokens with plan access (`write` tokens, and `read_plans` tokens once #143 merges).
-- The role this setting compares against can come from any login method, including a GitHub team mapping or a trusted proxy's group mapping, not only the built-in password roles. For example, with `PLAN_OUTPUT_MIN_ROLE=editor`, viewers see status and dashboards but not raw plan output.
+- The role this setting compares against can come from any login method, including a GitHub team mapping, not only the built-in password roles. For example, with `PLAN_OUTPUT_MIN_ROLE=editor`, viewers see status and dashboards but not raw plan output.
 
 ## Admin Authentication
 
