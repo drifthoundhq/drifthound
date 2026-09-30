@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/drifthoundhq/drifthound/compare/v0.6.0...v0.7.0) (2026-09-30)
+
+
+### Features
+
+* colorize terraform plan output in check history ([#146](https://github.com/drifthoundhq/drifthound/issues/146)) ([b109307](https://github.com/drifthoundhq/drifthound/commit/b1093073f35033bc17e59d38444b278d400eb1ea)), closes [#137](https://github.com/drifthoundhq/drifthound/issues/137)
+
 ## [0.6.0](https://github.com/drifthoundhq/drifthound/compare/v0.5.1...v0.6.0) (2026-04-19)
 
 
