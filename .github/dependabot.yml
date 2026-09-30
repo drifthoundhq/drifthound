@@ -3,10 +3,50 @@ updates:
 - package-ecosystem: bundler
   directory: "/"
   schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+    interval: weekly
+    day: monday
+    time: "06:00"
+    timezone: Europe/Madrid
+  # Wait before proposing a fresh release, so a compromised or broken
+  # version has time to be yanked. Security updates skip this.
+  cooldown:
+    default-days: 7
+  commit-message:
+    prefix: chore
+    include: scope # chore(deps): / chore(deps-dev):
+  groups:
+    bundler-minor-patch:
+      applies-to: version-updates
+      update-types: [minor, patch]
+    bundler-security:
+      applies-to: security-updates
+      patterns: ["*"]
+  open-pull-requests-limit: 5
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+    interval: weekly
+    day: monday
+    time: "06:00"
+    timezone: Europe/Madrid
+  cooldown:
+    default-days: 7
+  commit-message:
+    prefix: chore
+    include: scope
+  groups:
+    actions-minor-patch:
+      applies-to: version-updates
+      update-types: [minor, patch]
+  open-pull-requests-limit: 5
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: monday
+    time: "06:00"
+    timezone: Europe/Madrid
+  commit-message:
+    prefix: chore
+    include: scope
+  open-pull-requests-limit: 2
