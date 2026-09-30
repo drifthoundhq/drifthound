@@ -31,8 +31,7 @@ updates:
     time: "06:00"
     timezone: Europe/Madrid
   cooldown:
-    default-days: 3
-    semver-major-days: 14
+    default-days: 7
   commit-message:
     prefix: chore
     include: scope
