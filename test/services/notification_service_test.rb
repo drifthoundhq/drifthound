@@ -106,7 +106,7 @@ class NotificationServiceTest < ActiveSupport::TestCase
     service.call
   end
 
-  test "notifies when transitioning from error to drift (degraded but improved)" do
+  test "notifies when transitioning from error to drift (posts drift_detected)" do
     @environment.update!(status: :error)
     channel = @project.notification_channels.create!(
       channel_type: "slack",
@@ -118,7 +118,7 @@ class NotificationServiceTest < ActiveSupport::TestCase
 
     NotificationDelivery.expects(:deliver).once.with do |args|
       args[:notification].is_a?(Notification) &&
-      args[:notification].event_type == :error_resolved &&
+      args[:notification].event_type == :drift_detected &&
       args[:channel] == channel
     end
 

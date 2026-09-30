@@ -19,11 +19,7 @@ class NotificationDelivery
     notification_state = find_or_create_state
     config = build_config
 
-    if @notification.should_update_existing? && notification_state.external_id.present?
-      @adapter_class.update(notification_state, @notification, config)
-    else
-      @adapter_class.deliver(@notification, config, notification_state)
-    end
+    @adapter_class.deliver(@notification, config, notification_state)
   rescue StandardError => e
     Rails.logger.error("Notification delivery failed: #{e.message}")
     Rails.logger.error(e.backtrace.join("\n"))
