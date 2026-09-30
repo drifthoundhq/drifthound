@@ -47,6 +47,23 @@ class ApiTokenTest < ActiveSupport::TestCase
     assert token.read_only?
   end
 
+  test "read_plans access is read only with plan output" do
+    token = ApiToken.create!(name: "plan-viewer", access: "read_plans")
+    assert token.read_only?
+    assert token.can_read_plan_output?
+  end
+
+  test "plan output access by level" do
+    assert_not ApiToken.new(access: "read").can_read_plan_output?
+    assert ApiToken.new(access: "read_plans").can_read_plan_output?
+    assert ApiToken.new(access: "write").can_read_plan_output?
+  end
+
+  test "access labels cover every level" do
+    assert_equal ApiToken.accesses.keys.sort, ApiToken::ACCESS_LABELS.keys.sort
+    assert_equal "Read only, with plan output", ApiToken.new(access: "read_plans").access_label
+  end
+
   test "rejects unknown access" do
     token = ApiToken.new(name: "bad", access: "admin")
     assert_not token.valid?

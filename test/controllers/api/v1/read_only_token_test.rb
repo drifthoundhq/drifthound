@@ -3,8 +3,10 @@ require "test_helper"
 class Api::V1::ReadOnlyTokenTest < ActionDispatch::IntegrationTest
   setup do
     @read_token = ApiToken.create!(name: "dashboard", access: "read")
+    @read_plans_token = ApiToken.create!(name: "plan-viewer", access: "read_plans")
     @write_token = ApiToken.create!(name: "ci")
     @read_header = { "Authorization" => "Bearer #{@read_token.token}" }
+    @read_plans_header = { "Authorization" => "Bearer #{@read_plans_token.token}" }
     @write_header = { "Authorization" => "Bearer #{@write_token.token}" }
 
     @project = Project.create!(name: "Read Project", key: "read-project")
@@ -32,10 +34,32 @@ class Api::V1::ReadOnlyTokenTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "read token can fetch drift" do
+  test "read token fetches drift summary without plan output" do
     get drift_api_v1_project_environment_path(@project.key, @environment.key), headers: @read_header, as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal "drift", body["status"]
+    assert_equal 1, body["add_count"]
+    assert_not body.key?("raw_output")
+    assert_equal true, body["raw_output_restricted"]
+    assert_not_includes response.body, "Plan: 1 to add"
+  end
+
+  test "read_plans token fetches drift with plan output" do
+    get drift_api_v1_project_environment_path(@project.key, @environment.key), headers: @read_plans_header, as: :json
+
     assert_response :success
     assert_equal "Plan: 1 to add", response.parsed_body["raw_output"]
+    assert_not response.parsed_body.key?("raw_output_restricted")
+  end
+
+  test "write token fetches drift with plan output" do
+    get drift_api_v1_project_environment_path(@project.key, @environment.key), headers: @write_header, as: :json
+
+    assert_response :success
+    assert_equal "Plan: 1 to add", response.parsed_body["raw_output"]
+    assert_not response.parsed_body.key?("raw_output_restricted")
   end
 
   test "read token can send HEAD requests" do
@@ -53,6 +77,17 @@ class Api::V1::ReadOnlyTokenTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
     assert_equal({ "error" => "Forbidden: this API token is read-only" }, response.parsed_body)
+  end
+
+  test "read_plans token cannot submit drift checks" do
+    assert_no_difference "DriftCheck.count" do
+      post api_v1_environment_checks_path(@project.key, @environment.key),
+        params: { status: "ok", add_count: 0, change_count: 0, destroy_count: 0 },
+        headers: @read_plans_header,
+        as: :json
+    end
+
+    assert_response :forbidden
   end
 
   test "write token can submit drift checks" do

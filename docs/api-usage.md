@@ -156,13 +156,16 @@ Each token has an access level:
 | Access | Allowed requests | Use for |
 |--------|------------------|---------|
 | `write` (default) | All API endpoints, including submitting drift checks | CI/CD pipelines and the CLI |
-| `read` | `GET` and `HEAD` requests only | Dashboards and reporting tools that only read drift status |
+| `read_plans` | `GET` and `HEAD` requests only, including plan output | Tools that need to show or analyse plans |
+| `read` | `GET` and `HEAD` requests only, without plan output | Dashboards and reporting tools that only read drift status |
 
-A read-only token that sends any other request (for example `POST .../checks`) receives `403 Forbidden`:
+A `read` or `read_plans` token that sends any other request (for example `POST .../checks`) receives `403 Forbidden`:
 
 ```json
 { "error": "Forbidden: this API token is read-only" }
 ```
+
+Plan output can contain sensitive values, so only `read_plans` and `write` tokens receive it. For a `read` token, `GET .../environments/:key/drift` still returns the check summary, without `raw_output` and with `"raw_output_restricted": true`.
 
 Tokens created before access levels were introduced keep `write` access.
 
@@ -171,6 +174,7 @@ Tokens created before access levels were introduced keep `write` access.
 ```bash
 bin/rails "api_tokens:generate[CI Pipeline]"
 bin/rails "api_tokens:generate[Reporting Dashboard,read]"
+bin/rails "api_tokens:generate[Plan Viewer,read_plans]"
 bin/rails api_tokens:list
 bin/rails "api_tokens:revoke[42]"
 ```

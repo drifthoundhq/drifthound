@@ -1,5 +1,5 @@
 namespace :api_tokens do
-  desc "Generate a new API token (access: write or read, default write)"
+  desc "Generate a new API token (access: write, read_plans or read, default write)"
   task :generate, [ :name, :access ] => :environment do |t, args|
     name = args[:name] || "default"
     access = args[:access] || "write"

@@ -63,6 +63,16 @@ class ApiTokensControllerTest < ActionDispatch::IntegrationTest
     assert ApiToken.find_by(name: "Dashboard").read_only?
   end
 
+  test "admin can create read only api token with plan output" do
+    sign_in_as(@admin)
+    post api_tokens_path, params: { api_token: { name: "Plan Viewer", access: "read_plans" } }
+
+    assert_redirected_to api_tokens_path
+    token = ApiToken.find_by(name: "Plan Viewer")
+    assert token.read_only?
+    assert token.can_read_plan_output?
+  end
+
   test "cannot create api token with unknown access" do
     sign_in_as(@admin)
     assert_no_difference("ApiToken.count") do
@@ -73,10 +83,12 @@ class ApiTokensControllerTest < ActionDispatch::IntegrationTest
 
   test "index shows token access" do
     ApiToken.create!(name: "Reporting", access: "read")
+    ApiToken.create!(name: "Plan Viewer", access: "read_plans")
     sign_in_as(@admin)
     get api_tokens_path
-    assert_select "select[name=?]", "api_token[access]"
+    assert_select "select[name=?] option", "api_token[access]", 3
     assert_select ".col-access", text: "Read only"
+    assert_select ".col-access", text: "Read only, with plan output"
     assert_select ".col-access", text: "Read and write"
   end
 

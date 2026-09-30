@@ -136,7 +136,7 @@ curl -X POST \
 2. Click **API Tokens** in the navigation bar
 3. Create a new token and copy it (it's only shown once!)
 
-Tokens are read and write by default. Choose **Read only** for dashboards or reporting tools that only need the `GET` endpoints; they receive `403 Forbidden` on writes.
+Tokens are read and write by default. Choose **Read only** for dashboards or reporting tools that only need the `GET` endpoints, or **Read only, with plan output** if they also need to read plans. Both receive `403 Forbidden` on writes.
 
 📖 See [docs/api-usage.md](docs/api-usage.md) for complete API documentation, including advanced features and examples.
 

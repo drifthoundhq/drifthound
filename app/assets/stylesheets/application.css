@@ -2528,7 +2528,7 @@ h1, h2, h3 {
 
 .token-form-inline .form-control-access {
   flex: 0 0 auto;
-  min-width: 140px;
+  min-width: 220px;
 }
 
 .token-form-inline .btn {
@@ -2617,7 +2617,7 @@ h1, h2, h3 {
 
 .tokens-header {
   display: grid;
-  grid-template-columns: 1fr 180px 120px 120px 80px;
+  grid-template-columns: 1fr 180px 200px 120px 80px;
   column-gap: 1rem;
   padding: 0.75rem 1.5rem;
   background-color: #e5e7eb;
@@ -2630,7 +2630,7 @@ h1, h2, h3 {
 
 .token-row {
   display: grid;
-  grid-template-columns: 1fr 180px 120px 120px 80px;
+  grid-template-columns: 1fr 180px 200px 120px 80px;
   column-gap: 1rem;
   padding: 1rem 1.5rem;
   align-items: center;
