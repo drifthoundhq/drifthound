@@ -40,17 +40,16 @@ class NotificationStateTest < ActiveSupport::TestCase
     assert other_state.valid?
   end
 
-  test "mark_sent! updates external_id, status and metadata" do
+  test "mark_sent! updates status and metadata" do
     state = @environment.notification_states.create!(channel: "slack")
 
     state.mark_sent!(
-      external_id: "1234567890.123456",
       status: "drift",
       metadata: { foo: "bar" }
     )
 
     state.reload
-    assert_equal "1234567890.123456", state.external_id
+    assert_nil state.external_id
     assert_equal Environment.statuses["drift"], state.last_notified_status
     assert_equal "bar", state.metadata["foo"]
     assert_not_nil state.metadata["last_sent_at"]
@@ -63,7 +62,6 @@ class NotificationStateTest < ActiveSupport::TestCase
     )
 
     state.mark_sent!(
-      external_id: "123",
       status: "error",
       metadata: { new: "data" }
     )

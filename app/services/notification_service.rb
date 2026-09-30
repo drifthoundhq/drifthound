@@ -60,7 +60,7 @@ class NotificationService
     elsif @old_status == "error" && @new_status == "ok"
       :error_resolved
     elsif @old_status == "error" && @new_status == "drift"
-      :error_resolved # Degraded but improved
+      :drift_detected
     elsif @new_status == "drift" && @old_status != "drift"
       :drift_detected
     elsif @old_status == "drift" && @new_status == "ok"
