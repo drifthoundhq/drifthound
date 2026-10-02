@@ -31,6 +31,7 @@ Live demo site: https://demo.drifthound.io
 - **Project Status**: Display project status (OK / Drift / Error / Unknown)
 - **Web Dashboard**: View all projects and their drift status at a glance
 - **Role-Based Plan Visibility**: Optionally restrict raw plan output to editors or admins with `PLAN_OUTPUT_MIN_ROLE` (see the [Configuration Guide](docs/configuration.md#plan_output_min_role))
+- **Environment Overview**: See every project for one environment in a single table at `/environments/:key`
 - **Charts Dashboard**: Visual analytics with interactive charts for drift monitoring
 - **Slack Notifications**: Real-time alerts when drift is detected or resolved
 

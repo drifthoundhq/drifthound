@@ -35,6 +35,20 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".col-project", /Project/
   end
 
+  test "environment names link to the environment overview page" do
+    Project.destroy_all
+    first = Project.create!(name: "network", key: "network")
+    second = Project.create!(name: "database", key: "database")
+    first.environments.create!(name: "Production", key: "production")
+    second.environments.create!(name: "Production", key: "production")
+
+    get root_path
+
+    assert_response :success
+    assert_select ".project-env-row .col-environment a.env-link[href=?]", environment_overview_path("production"), text: "Production", count: 2
+    assert_select ".project-env-row a.row-link[href=?]", project_environment_path("network", "production")
+  end
+
   test "shows status counts correctly" do
     Project.destroy_all
     ok_project = Project.create!(name: "OK Project", key: "ok-project")

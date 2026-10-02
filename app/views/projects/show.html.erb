@@ -77,13 +77,14 @@
         </div>
 
         <% @environments.each do |environment| %>
-          <%= link_to project_environment_path(@project.key, environment.key), class: "environment-row" do %>
+          <%= tag.div class: "environment-row" do %>
+            <%= link_to "", project_environment_path(@project.key, environment.key), class: "row-link", "aria-label": environment.name %>
             <span class="col-status">
               <span class="status-indicator status-indicator--<%= environment.status %>"></span>
               <span class="status-text status-text--<%= environment.status %>"><%= environment.status.upcase %></span>
             </span>
             <span class="col-name">
-              <span class="environment-name" title="<%= environment.name %>"><%= environment.name %></span>
+              <span class="environment-name" title="<%= environment.name %>"><%= link_to environment.name, environment_overview_path(environment.key), class: "env-link" %></span>
             </span>
             <span class="col-summary oneline">
               <% last_check = environment.drift_checks.order(created_at: :desc).first %>

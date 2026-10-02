@@ -321,9 +321,10 @@
           <span style="text-align:right;">Last Check</span>
         </div>
           <% @project_environments.each do |project, env| %>
-            <%= link_to project_environment_path(project.key, env.key), class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
+            <%= tag.div class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
+              <%= link_to "", project_environment_path(project.key, env.key), class: "row-link", "aria-label": "#{project.name} #{env.name}" %>
               <span class="col-project" title="<%= project.name %>"><%= project.name %></span>
-              <span class="col-environment" title="<%= env.name %>"><%= env.name %></span>
+              <span class="col-environment" title="<%= env.name %>"><%= link_to env.name, environment_overview_path(env.key), class: "env-link" %></span>
               <span class="col-status">
                 <span class="status-indicator status-indicator--<%= env.last_check_status %>"></span>
                 <span class="status-text status-text--<%= env.last_check_status %>"><%= env.last_check_status.upcase %></span>

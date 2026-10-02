@@ -29,6 +29,13 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Test Project"
   end
 
+  test "environment name links to the environment overview page" do
+    get project_path(@project.key)
+    assert_response :success
+    assert_select ".environment-row .environment-name a.env-link[href=?]", environment_overview_path(@environment.key), text: "Production"
+    assert_select ".environment-row a.row-link[href=?]", project_environment_path(@project.key, @environment.key)
+  end
+
   test "shows drift check history" do
     get project_environment_path(@project.key, @environment.key)
     assert_response :success
