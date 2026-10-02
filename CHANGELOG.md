@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.0](https://github.com/drifthoundhq/drifthound/compare/v0.7.0...v0.8.0) (2026-10-02)
+
+
+### Features
+
+* add check history API endpoints ([#144](https://github.com/drifthoundhq/drifthound/issues/144)) ([e6ebe2b](https://github.com/drifthoundhq/drifthound/commit/e6ebe2bf71a542d4798e722eb7190665d3d8d5d1))
+* add read-only API token access level ([#143](https://github.com/drifthoundhq/drifthound/issues/143)) ([4907370](https://github.com/drifthoundhq/drifthound/commit/490737090d3a4d263f0851fb27393868298734e9))
+* allow restricting plan output to a minimum role ([#141](https://github.com/drifthoundhq/drifthound/issues/141)) ([6e6587b](https://github.com/drifthoundhq/drifthound/commit/6e6587b2f87761e4fa119e57c0190830168b6f8d))
+* allow setting environment display name from API and CLI ([#139](https://github.com/drifthoundhq/drifthound/issues/139)) ([30469ab](https://github.com/drifthoundhq/drifthound/commit/30469ab41fae81860a830671190619476fe62525))
+
 ## [0.7.0](https://github.com/drifthoundhq/drifthound/compare/v0.6.0...v0.7.0) (2026-09-30)
 
 
