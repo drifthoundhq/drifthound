@@ -295,6 +295,85 @@ GITHUB_TEAM_EDITOR=infrastructure-team,platform-engineers,sre
 GITHUB_TEAM_VIEWER=developers,contractors
 ```
 
+## OpenID Connect (OIDC) Authentication
+
+DriftHound can sign users in with any OpenID Connect identity provider (for example Keycloak, Authentik, Okta or Google Workspace). It is optional, off by default, and works next to password login and GitHub OAuth. One provider is supported per instance.
+
+OIDC login uses [OmniAuth](https://github.com/omniauth/omniauth) with [omniauth_openid_connect](https://github.com/omniauth/omniauth_openid_connect): the authorization code flow with PKCE, `state` and `nonce`, provider discovery from `<issuer>/.well-known/openid-configuration`, and ID token validation (signature, issuer, audience and expiry) are handled by those gems.
+
+### Enabling OIDC
+
+```bash
+OIDC_ENABLED=true
+OIDC_ISSUER=https://login.example.com
+OIDC_CLIENT_ID=drifthound
+OIDC_CLIENT_SECRET=your-client-secret
+OIDC_VIEWER_GROUPS=drift-viewers
+```
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OIDC_ENABLED` | No | `false` | Set to `true` to show the SSO button and enable `/auth/oidc` |
+| `OIDC_ISSUER` | When enabled | | Issuer URL of the provider, used for discovery |
+| `OIDC_CLIENT_ID` | When enabled | | Client ID registered with the provider |
+| `OIDC_CLIENT_SECRET` | When enabled | | Client secret registered with the provider |
+| `OIDC_SCOPES` | No | `openid email profile` | Space- or comma-separated scopes; `openid` is always added |
+| `OIDC_GROUPS_CLAIM` | No | `groups` | Claim in the ID token or userinfo response that holds the user's groups |
+| `OIDC_ADMIN_GROUPS` | See below | | Comma-separated group values that grant the admin role |
+| `OIDC_EDITOR_GROUPS` | See below | | Comma-separated group values that grant the editor role |
+| `OIDC_VIEWER_GROUPS` | See below | | Comma-separated group values that grant the viewer role |
+| `OIDC_DEFAULT_ROLE` | See below | | `viewer`, `editor` or `admin`, given to users in no mapped group. Unset means those users are refused |
+| `OIDC_BUTTON_LABEL` | No | `Sign in with SSO` | Text of the login button |
+
+When `OIDC_ENABLED=true`, the app refuses to boot if the issuer, client ID or client secret is missing, if `OIDC_DEFAULT_ROLE` is not a valid role, or if no group mapping and no default role is set.
+
+### Registering DriftHound with your provider
+
+Create a confidential web client with:
+
+- **Redirect URI**: `APP_URL` followed by `/auth/oidc/callback`, for example `https://drifthound.example.com/auth/oidc/callback`. Set [`APP_URL`](#app_url) to the public URL of DriftHound.
+- **Grant type**: authorization code
+- **Claims**: `email`, and the groups claim named in `OIDC_GROUPS_CLAIM`
+
+### Group-to-Role Mapping
+
+```bash
+OIDC_GROUPS_CLAIM=groups
+OIDC_ADMIN_GROUPS=drift-admins
+OIDC_EDITOR_GROUPS=drift-editors,release-managers
+OIDC_VIEWER_GROUPS=drift-viewers
+```
+
+**Notes:**
+- Group values are compared exactly as the provider sends them (case-sensitive). Some providers send group IDs instead of names; use whatever value appears in the claim.
+- The role is set from the groups on every login, and the highest mapped role wins.
+- Users in no mapped group are refused, unless `OIDC_DEFAULT_ROLE` is set.
+- Some providers leave the groups claim out when a user is in many groups. Those users will match no group.
+
+### How OIDC Users Are Matched
+
+- Users are matched only on provider (`oidc`) and the `sub` claim. There is no linking by email.
+- On first login a new user is created with the `email` claim (lowercased) and the mapped role.
+- If that email already belongs to another DriftHound account (a password user, a GitHub user, or another OIDC subject), the login is refused with a message. Compare is case-insensitive. An admin can delete the old account if the person should sign in with OIDC instead.
+- Logins without an `email` claim, or with `email_verified` set to `false`, are refused.
+- The stored email is not changed on later logins.
+
+### Example Configuration
+
+```bash
+APP_URL=https://drifthound.example.com
+OIDC_ENABLED=true
+OIDC_ISSUER=https://login.example.com
+OIDC_CLIENT_ID=drifthound
+OIDC_CLIENT_SECRET=your-client-secret
+OIDC_SCOPES="openid email profile groups"
+OIDC_GROUPS_CLAIM=groups
+OIDC_ADMIN_GROUPS=drift-admins
+OIDC_EDITOR_GROUPS=drift-editors
+OIDC_VIEWER_GROUPS=drift-viewers
+OIDC_BUTTON_LABEL="Sign in with Example SSO"
+```
+
 ## Database Configuration
 
 DriftHound uses PostgreSQL and supports multiple databases for different concerns (primary, cache, queue, cable).
@@ -590,6 +669,14 @@ GITHUB_ORG=your-organization
 GITHUB_TEAM_ADMIN=platform-admins,security-team
 GITHUB_TEAM_EDITOR=platform-editors,developers
 GITHUB_TEAM_VIEWER=read-only
+
+# OpenID Connect (optional)
+OIDC_ENABLED=true
+OIDC_ISSUER=https://login.example.com
+OIDC_CLIENT_ID=drifthound
+OIDC_CLIENT_SECRET=your-oidc-client-secret
+OIDC_ADMIN_GROUPS=drift-admins
+OIDC_VIEWER_GROUPS=drift-viewers
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password

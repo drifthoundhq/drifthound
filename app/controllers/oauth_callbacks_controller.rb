@@ -45,9 +45,46 @@ class OauthCallbacksController < ApplicationController
     redirect_to login_path, alert: "Authentication failed. Please try again."
   end
 
+  def oidc_redirect
+    redirect_to login_path, alert: "SSO authentication is not enabled"
+  end
+
+  def oidc
+    unless oidc_enabled?
+      redirect_to login_path, alert: "SSO authentication is not enabled"
+      return
+    end
+
+    user = Oauth::OidcService.new(request.env["omniauth.auth"]).authenticate
+    reset_session
+    session[:user_id] = user.id
+    redirect_to root_path, notice: "Logged in successfully via SSO"
+  rescue Oauth::OidcService::EmailTakenError
+    Rails.logger.warn "OIDC login refused: email already belongs to another account"
+    redirect_to login_path, alert: "An account with this email address already exists. Sign in the way you usually do, or ask an admin for help."
+  rescue Oauth::BaseService::OrganizationAccessError => e
+    Rails.logger.warn "OIDC access denied: #{e.message}"
+    redirect_to login_path, alert: "Access denied. You must be a member of a configured group."
+  rescue Oauth::BaseService::UserInfoError => e
+    Rails.logger.warn "OIDC user info rejected: #{e.message}"
+    redirect_to login_path, alert: "Your identity provider did not return a usable profile. #{e.message}."
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+    Rails.logger.error "OIDC user could not be saved: #{e.class}"
+    redirect_to login_path, alert: "SSO authentication failed. Please try again."
+  end
+
+  def failure
+    Rails.logger.warn "OIDC authentication failed: #{params[:message].to_s.truncate(100)}"
+    redirect_to login_path, alert: "SSO authentication failed. Please try again."
+  end
+
   private
 
   def github_enabled?
     Rails.application.config.oauth[:github][:enabled]
+  end
+
+  def oidc_enabled?
+    Rails.application.config.oidc[:enabled]
   end
 end
