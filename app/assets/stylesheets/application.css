@@ -124,6 +124,30 @@
   transition: background-color 0.15s;
 }
 
+.project-env-row,
+.environment-row {
+  position: relative;
+}
+
+.row-link {
+  position: absolute;
+  inset: 0;
+}
+
+.env-link {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
+
+.env-link:hover {
+  text-decoration: underline;
+}
+
+.environment-overview-table .col-project a {
+  font-weight: 600;
+}
+
 .project-env-row:last-child {
   border-bottom: none;
 }

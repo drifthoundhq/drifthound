@@ -52,6 +52,7 @@ Rails.application.routes.draw do
 
   # Dashboard routes
   root "dashboard#index"
+  get "environments/:key", to: "environment_overviews#show", as: :environment_overview
   get "projects/:key", to: "projects#show", as: :project
   delete "projects/:key", to: "projects#destroy"
   get "projects/:project_key/environments/:key", to: "environments#show", as: :project_environment

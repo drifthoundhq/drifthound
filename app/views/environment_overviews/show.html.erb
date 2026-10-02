@@ -1,0 +1,59 @@
+<div class="environment-detail">
+  <header class="project-header">
+    <div class="breadcrumb" title="<%= @name %>">
+      <%= link_to "DriftHound", root_path %><span class="breadcrumb-sep"> › </span><span title="<%= @name %>"><%= @name %></span>
+    </div>
+    <%= link_to "← Back to dashboard", root_path, class: "back-link" %>
+  </header>
+
+  <section class="project-summary-card">
+    <div class="summary-top">
+      <div class="main-info">
+        <h1 title="<%= @name %>"><%= @name %></h1>
+        <span class="env-separator">&bull;</span>
+        <span class="environment-title"><code><%= @key %></code></span>
+      </div>
+      <div>
+        <span class="last-check-time"><%= pluralize(@environments.size, "project") %></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-list">
+    <div class="projects-table environment-overview-table">
+      <div class="project-envs-header">
+        <span>Project</span>
+        <span>Status</span>
+        <span>Add / Change / Destroy</span>
+        <span style="text-align:right;">Last Check</span>
+      </div>
+      <% @environments.each do |environment| %>
+        <% check = @latest_checks[environment.id] %>
+        <% status = check&.status || "unknown" %>
+        <div class="project-env-row project-row--<%= environment.status %>">
+          <span class="col-project" title="<%= environment.project.name %>">
+            <%= link_to environment.project.name, project_environment_path(environment.project.key, environment.key) %>
+          </span>
+          <span class="col-status">
+            <span class="status-indicator status-indicator--<%= status %>"></span>
+            <span class="status-text status-text--<%= status %>"><%= status.upcase %></span>
+          </span>
+          <span class="col-counts">
+            <% if check %>
+              <%= check.add_count.to_i %> / <%= check.change_count.to_i %> / <%= check.destroy_count.to_i %>
+            <% else %>
+              —
+            <% end %>
+          </span>
+          <span class="col-time" style="text-align:right;">
+            <% if environment.last_checked_at %>
+              <%= time_ago_in_words(environment.last_checked_at) %> ago
+            <% else %>
+              Never
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</div>

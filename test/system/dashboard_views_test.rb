@@ -21,6 +21,20 @@ class DashboardViewsTest < ApplicationSystemTestCase
     assert_selector ".status-text--drift", text: "DRIFT"
   end
 
+  test "dashboard environment name opens the environment overview page" do
+    visit root_path
+    within(".project-env-row", text: "ViewTest Project") { click_link "Production" }
+    assert_current_path environment_overview_path(@env.key)
+    assert_selector "h1", text: "Production"
+    assert_selector ".project-env-row", text: "ViewTest Project"
+  end
+
+  test "dashboard row still opens the project environment page" do
+    visit root_path
+    within(".project-env-row", text: "ViewTest Project") { find(".row-link").click }
+    assert_current_path project_environment_path(@project.key, @env.key)
+  end
+
   test "project details page displays environments" do
     visit project_path(@project.key)
     assert_selector ".environment-row", text: "Production"
