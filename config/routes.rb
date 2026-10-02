@@ -36,6 +36,9 @@ Rails.application.routes.draw do
   # OAuth routes
   get "auth/github", to: "oauth_callbacks#github_redirect", as: :auth_github
   get "auth/github/callback", to: "oauth_callbacks#github", as: :auth_github_callback
+  post "auth/oidc", to: "oauth_callbacks#oidc_redirect", as: :auth_oidc
+  get "auth/oidc/callback", to: "oauth_callbacks#oidc", as: :auth_oidc_callback
+  get "auth/failure", to: "oauth_callbacks#failure", as: :auth_failure
 
   # Registration via invite
   get "register/:token", to: "registrations#new", as: :register

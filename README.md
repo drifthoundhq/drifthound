@@ -87,6 +87,31 @@ Live demo site: https://demo.drifthound.io
   make docker-setup-demo
   ```
 
+#### Testing SSO (OIDC) Login Locally
+
+Runs the app next to a mock identity provider ([mock-oauth2-server](https://github.com/navikt/mock-oauth2-server)), so you can try the OIDC login without a real provider. Run `make docker-setup` or `make docker-setup-demo` once first to create the database.
+
+  ```bash
+  make docker-oidc-start   # builds the app image, starts the app and the mock provider
+  make docker-oidc-stop
+  ```
+
+Open http://localhost:3000/login, click **Sign in with SSO**, and on the mock login page type one of these usernames (leave the claims box empty):
+
+| Username | Result |
+|----------|--------|
+| `admin`, `editor`, `viewer` | Signed in with that role |
+| `multi` | Signed in as admin (member of the viewers and admins groups; the highest role wins) |
+| `nogroups` | Refused: not in a mapped group |
+| `unverified` | Refused: the provider marks the email as not verified |
+| `clash` | Refused: the email belongs to the `make docker-setup` admin (`foo@example.com`) |
+| `clash-demo` | Refused: the email belongs to the demo admin (`admin@drifthound.io`) |
+
+The users and their claims live in `dev/oidc/mock-oauth2-server.json`. Add a block there to test another case, then run `make docker-oidc-stop` and `make docker-oidc-start` so the mock reloads the file. The OIDC settings are in `docker-compose.oidc.yml`, and `docs/configuration.md` explains each one.
+
+> [!NOTE]
+> The mock provider shares the app container's network, so `http://localhost:8090` is the same address for your browser and for the app, and no `/etc/hosts` changes are needed. Plain `http` discovery is enabled only in development (`config/initializers/oidc_local_http.rb`).
+
 
 ## CLI Usage
 

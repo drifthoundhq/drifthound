@@ -52,4 +52,28 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.valid?
     assert_includes user.errors[:password], "cannot be the same as your email"
   end
+
+  test "oidc user is valid without a password" do
+    user = User.new(email: "sso@example.com", provider: "oidc", uid: "sub-1", role: :viewer)
+    assert user.valid?
+    assert user.oauth_user?
+    assert_not user.can_use_password?
+  end
+
+  test "oidc user requires a sub" do
+    user = User.new(email: "sso@example.com", provider: "oidc", uid: nil, role: :viewer)
+    assert_not user.valid?
+    assert_includes user.errors[:uid], "can't be blank"
+  end
+
+  test "oidc sub is unique per provider" do
+    User.create!(email: "first@example.com", provider: "oidc", uid: "sub-1", role: :viewer)
+
+    duplicate = User.new(email: "second@example.com", provider: "oidc", uid: "sub-1", role: :viewer)
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:uid], "has already been taken"
+
+    other_provider = User.new(email: "third@example.com", provider: "github", uid: "sub-1", role: :viewer)
+    assert other_provider.valid?
+  end
 end

@@ -2790,6 +2790,29 @@ h1, h2, h3 {
   flex-shrink: 0;
 }
 
+.login-sso-form {
+  margin: 0;
+}
+
+.btn-github + .login-sso-form {
+  margin-top: 0.75rem;
+}
+
+.btn-sso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--color-text);
+  color: var(--color-bg, white);
+  border-color: var(--color-text);
+}
+
+.btn-sso:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
 /* ===== Login Divider ===== */
 .login-divider {
   display: flex;

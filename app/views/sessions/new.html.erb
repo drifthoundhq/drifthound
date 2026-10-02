@@ -13,7 +13,13 @@
         </svg>
         Sign in with GitHub
       <% end %>
+    <% end %>
 
+    <% if oidc_enabled? %>
+      <%= button_to oidc_button_label, auth_oidc_path, method: :post, class: "btn btn-sso btn-block", form_class: "login-sso-form", form: { data: { turbo: false } } %>
+    <% end %>
+
+    <% if github_oauth_enabled? || oidc_enabled? %>
       <div class="login-divider">
         <span>or</span>
       </div>

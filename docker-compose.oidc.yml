@@ -1,0 +1,35 @@
+# Local OIDC login testing with a mock identity provider.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.oidc.yml up -d --build
+#
+# Then open http://localhost:3000/login, click "Sign in with SSO" and type one
+# of the usernames from dev/oidc/mock-oauth2-server.json on the mock login page.
+#
+# The mock shares the app container's network, so http://localhost:8090 is the
+# same address for the browser (through the published port) and for the app.
+# That keeps the issuer identical on both sides without editing /etc/hosts.
+
+services:
+  app:
+    ports:
+      - "8090:8090"
+    environment:
+      OIDC_ENABLED: "true"
+      OIDC_ISSUER: http://localhost:8090/default
+      OIDC_CLIENT_ID: drifthound-local
+      OIDC_CLIENT_SECRET: local-secret
+      OIDC_ADMIN_GROUPS: drift-admins
+      OIDC_EDITOR_GROUPS: drift-editors
+      OIDC_VIEWER_GROUPS: drift-viewers
+      APP_URL: http://localhost:3000
+
+  oidc:
+    image: ghcr.io/navikt/mock-oauth2-server:6.0.4
+    network_mode: service:app
+    depends_on:
+      - app
+    environment:
+      SERVER_PORT: "8090"
+      JSON_CONFIG_PATH: /config/mock-oauth2-server.json
+    volumes:
+      - ./dev/oidc:/config:ro
