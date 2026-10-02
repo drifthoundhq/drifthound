@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/drifthoundhq/drifthound/compare/v0.8.0...v0.9.0) (2026-10-02)
+
+
+### Features
+
+* add optional OpenID Connect login ([#157](https://github.com/drifthoundhq/drifthound/issues/157)) ([fd26f2c](https://github.com/drifthoundhq/drifthound/commit/fd26f2ce08513bc983f42f3899bad5639b9c704a))
+
 ## [0.8.0](https://github.com/drifthoundhq/drifthound/compare/v0.7.0...v0.8.0) (2026-10-02)
 
 
