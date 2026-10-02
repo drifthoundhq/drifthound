@@ -1,0 +1,50 @@
+{
+  "interactiveLogin": true,
+  "tokenCallbacks": [
+    {
+      "issuerId": "default",
+      "requestMappings": [
+        {
+          "requestParam": "subject",
+          "match": "admin",
+          "claims": { "email": "oidc-admin@example.test", "email_verified": true, "groups": ["drift-admins"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "editor",
+          "claims": { "email": "oidc-editor@example.test", "email_verified": true, "groups": ["drift-editors"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "viewer",
+          "claims": { "email": "oidc-viewer@example.test", "email_verified": true, "groups": ["drift-viewers"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "multi",
+          "claims": { "email": "oidc-multi@example.test", "email_verified": true, "groups": ["drift-viewers", "drift-admins"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "nogroups",
+          "claims": { "email": "oidc-nogroups@example.test", "email_verified": true, "groups": [] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "unverified",
+          "claims": { "email": "oidc-unverified@example.test", "email_verified": false, "groups": ["drift-viewers"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "clash",
+          "claims": { "email": "foo@example.com", "email_verified": true, "groups": ["drift-admins"] }
+        },
+        {
+          "requestParam": "subject",
+          "match": "clash-demo",
+          "claims": { "email": "admin@drifthound.io", "email_verified": true, "groups": ["drift-admins"] }
+        }
+      ]
+    }
+  ]
+}

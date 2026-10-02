@@ -47,6 +47,22 @@ docker-destroy:
 docker-token:
 	@docker compose exec app bin/rails api_tokens:generate[my-ci-token]
 
+# OIDC login against a local mock identity provider (see docker-compose.oidc.yml).
+# Run docker-setup (or docker-setup-demo) once first to create the database.
+OIDC_COMPOSE = docker compose -f docker-compose.yml -f docker-compose.oidc.yml
+
+docker-oidc-start:
+	@$(OIDC_COMPOSE) build app
+	@$(OIDC_COMPOSE) up -d
+	@echo "Waiting for app and mock identity provider..."
+	@until curl -sf http://localhost:3000/up > /dev/null 2>&1; do sleep 1; done
+	@until curl -sf http://localhost:8090/default/.well-known/openid-configuration > /dev/null 2>&1; do sleep 1; done
+	@echo "Ready: open http://localhost:3000/login and click \"Sign in with SSO\"."
+	@echo "Mock users: admin, editor, viewer, multi, nogroups, unverified, clash, clash-demo (dev/oidc/mock-oauth2-server.json)"
+
+docker-oidc-stop:
+	@$(OIDC_COMPOSE) down
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 prepare-test-db:
