@@ -134,6 +134,11 @@
   inset: 0;
 }
 
+.row-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
 .env-link {
   position: relative;
   z-index: 1;
