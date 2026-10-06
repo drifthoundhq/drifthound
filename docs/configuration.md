@@ -103,7 +103,7 @@ PUBLIC_MODE=true
 
 **Notes:**
 - **Private by default** - New deployments require authentication out of the box
-- Admin actions (delete projects/environments, user management, API tokens) always require authentication regardless of this setting
+- Admin actions (delete projects/environments/checks, user management, API tokens) always require authentication regardless of this setting
 - Use public mode for internal dashboards where authentication would add friction
 - Use private mode for sensitive infrastructure data or external-facing deployments
 
@@ -195,6 +195,7 @@ ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=secure_password rails db:migrate
 When logged in as admin, you can:
 - Delete projects (cascades to all environments and drift checks)
 - Delete environments (cascades to all drift checks)
+- Delete a single drift check, or clear an environment's checks from before a date, from the environment page. The environment's status and last check time move to the newest remaining check, and no notification is sent. The same clear is available to `write` API tokens; see [API Usage](api-usage.md#clear-drift-checks).
 
 Read-only operations (viewing dashboard, projects, environments, drift history) do not require authentication.
 

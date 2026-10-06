@@ -47,7 +47,32 @@ module Api
         }, status: :created
       end
 
+      # DELETE /api/v1/projects/:project_key/environments/:environment_key/checks?before=<ISO 8601>
+      def clear
+        before_time = parse_before
+        return render json: { error: "before must be an ISO 8601 date or timestamp" }, status: :bad_request unless before_time
+
+        project = Project.find_by!(key: params[:project_key])
+        environment = project.environments.find_by!(key: params[:environment_key])
+        deleted_count = environment.delete_checks_before(before_time)
+
+        render json: {
+          project_key: project.key,
+          environment_key: environment.key,
+          before: before_time,
+          deleted_count: deleted_count
+        }
+      end
+
       private
+
+      def parse_before
+        return nil if params[:before].blank? || !params[:before].is_a?(String)
+
+        ActiveSupport::TimeZone["UTC"].iso8601(params[:before])
+      rescue ArgumentError
+        nil
+      end
 
       def drift_check_params
         params.permit(:status, :add_count, :change_count, :destroy_count, :duration, :raw_output)
