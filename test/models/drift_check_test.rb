@@ -189,4 +189,20 @@ class DriftCheckTest < ActiveSupport::TestCase
     assert_not check.valid?
     assert_includes check.errors[:branch], "is too long (maximum is 255 characters)"
   end
+
+  test "accepts valid git branch names" do
+    environment = environments(:production)
+    [ "main", "release/5.5023", "feature/foo-bar", "fix#12" ].each do |name|
+      assert environment.drift_checks.build(status: :ok, branch: name).valid?, "expected #{name} to be valid"
+    end
+  end
+
+  test "rejects branch names git would reject" do
+    environment = environments(:production)
+    [ "a..b", "bad name", "x~1", "a:b", "a^b", "a?b", "a*b", "a[b", "a\\b", "a@{b", "-main", "/main", "main/", ".main", "main.", "main.lock", "a//b", "a/.b", "a\tb" ].each do |name|
+      check = environment.drift_checks.build(status: :ok, branch: name)
+      assert_not check.valid?, "expected #{name.inspect} to be invalid"
+      assert_includes check.errors[:branch], "is not a valid git branch name"
+    end
+  end
 end

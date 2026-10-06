@@ -67,4 +67,25 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".check-branch", count: 1
     assert_select "a[href=?]", "https://github.com/org/infra/tree/trunk/envs/prod"
   end
+
+  test "repository link encodes each segment of the branch and directory" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "main")
+    @env.update!(directory: "envs/prod #1")
+    @env.drift_checks.create!(status: :ok, branch: "release/fix#12")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/release/fix%2312/envs/prod%20%231"
+  end
+
+  test "repository link encodes a project branch containing a question mark" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "what?now")
+    @env.update!(directory: "envs/prod")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/what%3Fnow/envs/prod"
+  end
 end

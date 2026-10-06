@@ -48,11 +48,13 @@
                     # Clean directory path (remove leading ./ or /)
                     clean_directory = @environment.directory.sub(%r{^\.?/}, '')
                     # Build tree path for GitHub/GitLab/Bitbucket
+                    encoded_branch = encode_url_path(branch)
+                    encoded_directory = encode_url_path(clean_directory)
                     tree_path = case @project.repository
-                    when /github\.com/ then "tree/#{branch}/#{clean_directory}"
-                    when /gitlab\.com/ then "-/tree/#{branch}/#{clean_directory}"
-                    when /bitbucket\.org/ then "src/#{branch}/#{clean_directory}"
-                    else clean_directory
+                    when /github\.com/ then "tree/#{encoded_branch}/#{encoded_directory}"
+                    when /gitlab\.com/ then "-/tree/#{encoded_branch}/#{encoded_directory}"
+                    when /bitbucket\.org/ then "src/#{encoded_branch}/#{encoded_directory}"
+                    else encoded_directory
                     end
                     full_url = "#{repo_url}/#{tree_path}"
                     display_text = "#{@project.repository.sub(%r{^https?://}, '')}/#{clean_directory}"

@@ -704,4 +704,28 @@ class Api::V1::DriftChecksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
   end
+
+  test "accepts valid git branch names" do
+    [ "main", "release/5.5023", "feature/foo-bar" ].each do |name|
+      post api_v1_environment_checks_path("valid-branch", "production"),
+        params: { status: "ok", branch: name }, headers: @auth_header, as: :json
+
+      assert_response :created
+      assert_equal name, response.parsed_body["branch"]
+    end
+  end
+
+  test "rejects invalid git branch names with 422 before saving anything" do
+    [ "a..b", "bad name", "x~1", "a:b" ].each do |name|
+      assert_no_difference -> { Project.count } do
+        assert_no_difference -> { DriftCheck.count } do
+          post api_v1_environment_checks_path("invalid-branch", "production"),
+            params: { status: "ok", branch: name }, headers: @auth_header, as: :json
+        end
+      end
+
+      assert_response :unprocessable_entity
+      assert_equal({ "error" => "branch is not a valid git branch name" }, response.parsed_body)
+    end
+  end
 end
