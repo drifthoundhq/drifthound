@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.9.0](https://github.com/drifthoundhq/drifthound/compare/v0.8.0...v0.9.0) (2026-10-06)
+
+
+### Features
+
+* add dark mode with a theme toggle in the top nav ([#162](https://github.com/drifthoundhq/drifthound/issues/162)) ([895d176](https://github.com/drifthoundhq/drifthound/commit/895d176404b129471132c6d572ea971b3a610c84))
+* add environment overview page ([#156](https://github.com/drifthoundhq/drifthound/issues/156)) ([70bb3e5](https://github.com/drifthoundhq/drifthound/commit/70bb3e5b429e2744d6619cd2f081d3ba9ae06ab0))
+* add optional OpenID Connect login ([#157](https://github.com/drifthoundhq/drifthound/issues/157)) ([fd26f2c](https://github.com/drifthoundhq/drifthound/commit/fd26f2ce08513bc983f42f3899bad5639b9c704a))
+* delete single drift checks or clear checks before a date ([#168](https://github.com/drifthoundhq/drifthound/issues/168)) ([4291b33](https://github.com/drifthoundhq/drifthound/commit/4291b33619cdc86050ac914bfc2b692a1ca593bb))
+* exclude environments from dashboard metrics ([#166](https://github.com/drifthoundhq/drifthound/issues/166)) ([8ecdbb6](https://github.com/drifthoundhq/drifthound/commit/8ecdbb6f854c815891cc957c29284b5f770b6223))
+* store the branch on each drift check ([#167](https://github.com/drifthoundhq/drifthound/issues/167)) ([c26c1cf](https://github.com/drifthoundhq/drifthound/commit/c26c1cffeaa7262aff6b5a7114a16c0972ed59a3))
+
+
+### Bug Fixes
+
+* show top-row chart info tooltips above the sticky filter bar ([#169](https://github.com/drifthoundhq/drifthound/issues/169)) ([783decb](https://github.com/drifthoundhq/drifthound/commit/783decb134db99c2302233d9361d298efb359d0e))
+
 ## [0.8.0](https://github.com/drifthoundhq/drifthound/compare/v0.7.0...v0.8.0) (2026-10-02)
 
 
