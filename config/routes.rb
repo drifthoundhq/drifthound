@@ -61,4 +61,6 @@ Rails.application.routes.draw do
   get "projects/:project_key/environments/:key", to: "environments#show", as: :project_environment
   patch "projects/:project_key/environments/:key", to: "environments#update"
   delete "projects/:project_key/environments/:key", to: "environments#destroy"
+  delete "projects/:project_key/environments/:key/checks", to: "drift_checks#clear", as: :project_environment_checks
+  delete "projects/:project_key/environments/:key/checks/:id", to: "drift_checks#destroy", as: :project_environment_check
 end

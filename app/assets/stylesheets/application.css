@@ -2982,3 +2982,23 @@ h1, h2, h3 {
   padding: 0 0.75rem;
 }
 
+/* ===== Clearing Checks ===== */
+.clear-checks-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.clear-checks-form input[type="date"] {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-card);
+  color: var(--color-text);
+}
+
+.delete-check-form {
+  display: inline;
+  margin-left: 0.5rem;
+}
