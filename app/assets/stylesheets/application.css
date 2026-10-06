@@ -1920,6 +1920,10 @@ h1, h2, h3 {
   transform: translateY(-2px);
 }
 
+.chart-card:has(.chart-info:hover) {
+  z-index: 51;
+}
+
 .chart-card-header {
   display: flex;
   justify-content: space-between;
