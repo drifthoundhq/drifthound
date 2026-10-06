@@ -25,7 +25,7 @@ class DashboardViewsTest < ApplicationSystemTestCase
     visit root_path
     within(".project-env-row", text: "ViewTest Project") { click_link "Production" }
     assert_current_path environment_overview_path(@env.key)
-    assert_selector "h1", text: "Production"
+    assert_selector "h1", text: @env.key
     assert_selector ".project-env-row", text: "ViewTest Project"
   end
 
