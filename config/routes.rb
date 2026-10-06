@@ -14,7 +14,6 @@ Rails.application.routes.draw do
     namespace :v1 do
       # Write endpoint (existing)
       post "projects/:project_key/environments/:environment_key/checks", to: "drift_checks#create", as: :environment_checks
-      delete "projects/:project_key/environments/:environment_key/checks", to: "drift_checks#clear"
       get "projects/:project_key/environments/:environment_key/checks", to: "checks#index"
       get "checks", to: "checks#index", as: :checks
 

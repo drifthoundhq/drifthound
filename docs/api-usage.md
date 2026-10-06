@@ -157,37 +157,6 @@ History responses do not include `raw_output`. Use `GET /api/v1/projects/:projec
 - `401 Unauthorized` - Missing or invalid API token
 - `404 Not Found` - Unknown project or environment
 
-### Clear Drift Checks
-
-Delete an environment's checks from before a date, for example early or test runs. The environment and newer checks are kept, and the environment's status and last check time move to the newest remaining check. Needs a `write` token; read-only tokens get `403 Forbidden`.
-
-**Endpoint:** `DELETE /api/v1/projects/:project_key/environments/:environment_key/checks?before=<ISO 8601>`
-
-`before` is required. A date such as `2025-11-01` means midnight UTC at the start of that day, and a timestamp without an offset is read as UTC. Checks created before that moment are deleted.
-
-```bash
-curl -X DELETE -H "Authorization: Bearer YOUR_API_TOKEN" \
-  "http://localhost:3000/api/v1/projects/my-project/environments/staging/checks?before=2025-11-01"
-```
-
-**Response (200 OK):**
-
-```json
-{
-  "project_key": "my-project",
-  "environment_key": "staging",
-  "before": "2025-11-01T00:00:00.000Z",
-  "deleted_count": 12
-}
-```
-
-**Error Responses:**
-
-- `400 Bad Request` - `before` is missing or not an ISO 8601 date or timestamp
-- `401 Unauthorized` - Missing or invalid API token
-- `403 Forbidden` - The token is read-only
-- `404 Not Found` - Unknown project or environment
-
 ## Advanced Features
 
 ### Notification Channel Configuration

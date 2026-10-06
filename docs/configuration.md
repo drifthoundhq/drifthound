@@ -195,7 +195,7 @@ ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=secure_password rails db:migrate
 When logged in as admin, you can:
 - Delete projects (cascades to all environments and drift checks)
 - Delete environments (cascades to all drift checks)
-- Delete a single drift check, or clear an environment's checks from before a date, from the environment page. The environment's status and last check time move to the newest remaining check, and no notification is sent. The same clear is available to `write` API tokens; see [API Usage](api-usage.md#clear-drift-checks).
+- Delete a single drift check, or clear an environment's checks from before a date, from the environment page. The environment's status and last check time move to the newest remaining check, and no notification is sent.
 
 Read-only operations (viewing dashboard, projects, environments, drift history) do not require authentication.
 
