@@ -161,6 +161,8 @@ History responses do not include `raw_output`. Use `GET /api/v1/projects/:projec
 
 Exclude an environment from the dashboard charts and stability score, or include it again. Needs a `write` token.
 
+**Note:** any `write` token can set this flag through the API. The web UI only lets admins change it, so it is not admin-only over the API. Write tokens can already change the charts by submitting checks.
+
 **Endpoint:** `PATCH /api/v1/projects/:project_key/environments/:key`
 
 ```bash
