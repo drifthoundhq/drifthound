@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_29_175231) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_175231) do
   create_table "environments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "directory"
+    t.boolean "exclude_from_metrics", default: false, null: false
     t.string "key", null: false
     t.datetime "last_checked_at"
     t.string "name", null: false

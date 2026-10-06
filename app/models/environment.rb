@@ -6,6 +6,8 @@ class Environment < ApplicationRecord
   has_many :notification_states, dependent: :destroy
   has_many :notification_channels, as: :notifiable, dependent: :destroy
 
+  scope :included_in_metrics, -> { where(exclude_from_metrics: false) }
+
   # Returns the status of the most recent drift check, or 'unknown' if none
   def last_check_status
     drift_checks.order(created_at: :desc).limit(1).pluck(:status).first || "unknown"

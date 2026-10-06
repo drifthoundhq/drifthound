@@ -45,4 +45,14 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".check-output code", /Plan: 2 to add/
   end
+
+  test "project page lists an excluded environment with its status" do
+    @environment.update!(exclude_from_metrics: true)
+
+    get project_path(@project.key)
+
+    assert_response :success
+    assert_select ".environment-row", 1
+    assert_select ".environment-row .status-text--drift", "DRIFT"
+  end
 end

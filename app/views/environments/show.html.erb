@@ -16,6 +16,9 @@
         <span class="environment-title" title="<%= @environment.name %>"><%= @environment.name %></span>
         <span class="env-separator">&bull;</span>
         <span class="status-pill status-pill--<%= last_status %>"><%= last_status.upcase %></span>
+        <% if @environment.exclude_from_metrics? %>
+          <span class="badge badge-info" title="Left out of the dashboard charts and stability score">Excluded from metrics</span>
+        <% end %>
       </div>
       <div>
         <% if @environment.last_checked_at %>
@@ -25,7 +28,7 @@
         <% end %>
       </div>
     </div>
-    <% if @project.repository.present? || @environment.directory.present? || @slack_channel.present? || policy(@environment).destroy? %>
+    <% if @project.repository.present? || @environment.directory.present? || @slack_channel.present? || policy(@environment).update? || policy(@environment).destroy? %>
       <div class="summary-bottom">
         <div class="summary-bottom-left">
           <% if @project.repository.present? || @environment.directory.present? %>
@@ -74,9 +77,20 @@
             </span>
           <% end %>
         </div>
-        <% if policy(@environment).destroy? %>
+        <% if policy(@environment).update? || policy(@environment).destroy? %>
           <div class="summary-bottom-right">
-            <button type="button" class="btn btn-danger-outline btn-sm" data-action="click->modal#open">Delete Environment</button>
+            <% if policy(@environment).update? %>
+              <%= button_to @environment.exclude_from_metrics? ? "Include in Metrics" : "Exclude from Metrics",
+                    project_environment_path(@project.key, @environment.key),
+                    method: :patch,
+                    params: { exclude_from_metrics: !@environment.exclude_from_metrics? },
+                    class: "btn btn-secondary btn-sm",
+                    form_class: "metrics-toggle-form",
+                    title: "Exclude this environment from the dashboard charts and stability score. It stays in every list." %>
+            <% end %>
+            <% if policy(@environment).destroy? %>
+              <button type="button" class="btn btn-danger-outline btn-sm" data-action="click->modal#open">Delete Environment</button>
+            <% end %>
           </div>
         <% end %>
       </div>

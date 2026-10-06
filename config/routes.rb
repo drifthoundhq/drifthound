@@ -19,7 +19,7 @@ Rails.application.routes.draw do
 
       # Read endpoints (new)
       resources :projects, only: [ :index, :show ], param: :key do
-        resources :environments, only: [ :index, :show ], param: :key do
+        resources :environments, only: [ :index, :show, :update ], param: :key do
           member do
             get :drift
           end
@@ -58,5 +58,6 @@ Rails.application.routes.draw do
   get "projects/:key", to: "projects#show", as: :project
   delete "projects/:key", to: "projects#destroy"
   get "projects/:project_key/environments/:key", to: "environments#show", as: :project_environment
+  patch "projects/:project_key/environments/:key", to: "environments#update"
   delete "projects/:project_key/environments/:key", to: "environments#destroy"
 end

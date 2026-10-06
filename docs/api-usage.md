@@ -157,6 +157,33 @@ History responses do not include `raw_output`. Use `GET /api/v1/projects/:projec
 - `401 Unauthorized` - Missing or invalid API token
 - `404 Not Found` - Unknown project or environment
 
+### Update an Environment
+
+Exclude an environment from the dashboard charts and stability score, or include it again. Needs a `write` token.
+
+**Endpoint:** `PATCH /api/v1/projects/:project_key/environments/:key`
+
+```bash
+curl -X PATCH \
+  http://localhost:3000/api/v1/projects/my-project/environments/staging \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"exclude_from_metrics": true}'
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `exclude_from_metrics` | boolean | Yes | `true` leaves the environment out of the dashboard charts and stability score; `false` includes it again. It stays in every list either way. |
+
+The response is the environment, as returned by `GET /api/v1/projects/:project_key/environments/:key`. Environment objects in the read API include `exclude_from_metrics`.
+
+**Error Responses:**
+
+- `401 Unauthorized` - Missing or invalid API token
+- `403 Forbidden` - The token is read-only
+- `404 Not Found` - Unknown project or environment
+- `422 Unprocessable Entity` - `exclude_from_metrics` is missing or not a boolean
+
 ## Advanced Features
 
 ### Notification Channel Configuration

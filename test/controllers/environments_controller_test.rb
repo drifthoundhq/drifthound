@@ -40,4 +40,48 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[data-plan-noise-target=toggle]", 0
   end
+
+  test "admin can exclude an environment from metrics and include it again" do
+    patch project_environment_path(@project.key, @env.key), params: { exclude_from_metrics: true }
+
+    assert_redirected_to project_environment_path(@project.key, @env.key)
+    assert @env.reload.exclude_from_metrics?
+
+    get project_environment_path(@project.key, @env.key)
+    assert_response :success
+    assert_select ".badge", text: "Excluded from metrics"
+    assert_select "button", text: "Include in Metrics"
+
+    patch project_environment_path(@project.key, @env.key), params: { exclude_from_metrics: false }
+    assert_not @env.reload.exclude_from_metrics?
+  end
+
+  test "non-admin cannot change exclude from metrics" do
+    delete logout_path
+    post login_path, params: { email: users(:editor).email, password: "testpass1" }
+
+    patch project_environment_path(@project.key, @env.key), params: { exclude_from_metrics: true }
+
+    assert_not @env.reload.exclude_from_metrics?
+    assert_equal "You are not authorized to perform this action.", flash[:alert]
+  end
+
+  test "metrics toggle is not shown to non-admins" do
+    delete logout_path
+    post login_path, params: { email: users(:viewer).email, password: "testpass1" }
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select "button", text: "Exclude from Metrics", count: 0
+  end
+
+  test "anonymous user cannot change exclude from metrics" do
+    delete logout_path
+
+    patch project_environment_path(@project.key, @env.key), params: { exclude_from_metrics: true }
+
+    assert_redirected_to login_path
+    assert_not @env.reload.exclude_from_metrics?
+  end
 end
