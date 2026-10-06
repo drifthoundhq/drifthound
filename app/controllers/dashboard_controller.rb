@@ -32,16 +32,24 @@ class DashboardController < ApplicationController
 
   private
 
+  def metrics_environments
+    Environment.included_in_metrics
+  end
+
+  def metrics_drift_checks
+    DriftCheck.where(environment_id: metrics_environments.select(:id))
+  end
+
   def build_drift_chart_data
     # Get all environment names
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Generate all dates in range
     dates = (30.days.ago.to_date..Date.current).to_a
     date_labels = dates.map { |d| d.strftime("%b %d") }
 
     # Get counts grouped by environment name, date and status
-    raw_data = DriftCheck
+    raw_data = metrics_drift_checks
       .joins(environment: :project)
       .where(created_at: 30.days.ago.beginning_of_day..)
       .group("environments.name")
@@ -97,10 +105,10 @@ class DashboardController < ApplicationController
 
   def build_status_distribution_data
     # Get all environment names for filtering
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Overall status distribution (last 30 days)
-    all_counts = DriftCheck
+    all_counts = metrics_drift_checks
       .where(created_at: 30.days.ago.beginning_of_day..)
       .group(:status)
       .count
@@ -108,7 +116,7 @@ class DashboardController < ApplicationController
     # Per-environment status distribution
     by_environment = {}
     env_names.each do |env_name|
-      counts = DriftCheck
+      counts = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 30.days.ago.beginning_of_day..)
@@ -134,10 +142,10 @@ class DashboardController < ApplicationController
 
   def build_checks_per_project_data
     # Get all environment names for filtering
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Checks per project (last 30 days) - all environments
-    all_data = DriftCheck
+    all_data = metrics_drift_checks
       .joins(environment: :project)
       .where(created_at: 30.days.ago.beginning_of_day..)
       .group("projects.name")
@@ -159,7 +167,7 @@ class DashboardController < ApplicationController
     # Per-environment data
     by_environment = {}
     env_names.each do |env_name|
-      env_data = DriftCheck
+      env_data = metrics_drift_checks
         .joins(environment: :project)
         .where(environments: { name: env_name })
         .where(created_at: 30.days.ago.beginning_of_day..)
@@ -195,7 +203,7 @@ class DashboardController < ApplicationController
 
   def build_weekly_trend_data
     # Get all environment names for filtering
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Weekly averages (last 8 weeks)
     weeks = 8.times.map { |i| i.weeks.ago.beginning_of_week.to_date }
@@ -208,7 +216,7 @@ class DashboardController < ApplicationController
 
     weeks.reverse.each do |week_start|
       week_end = week_start + 6.days
-      counts = DriftCheck
+      counts = metrics_drift_checks
         .where(created_at: week_start.beginning_of_day..week_end.end_of_day)
         .group(:status)
         .count
@@ -234,7 +242,7 @@ class DashboardController < ApplicationController
 
       weeks.reverse.each do |week_start|
         week_end = week_start + 6.days
-        counts = DriftCheck
+        counts = metrics_drift_checks
           .joins(:environment)
           .where(environments: { name: env_name })
           .where(created_at: week_start.beginning_of_day..week_end.end_of_day)
@@ -269,7 +277,7 @@ class DashboardController < ApplicationController
 
   def build_environment_health_data
     # Status breakdown per environment type (horizontal bar chart)
-    env_names = Environment.distinct.pluck(:name).sort
+    env_names = metrics_environments.distinct.pluck(:name).sort
 
     labels = env_names
     ok_data = []
@@ -277,7 +285,7 @@ class DashboardController < ApplicationController
     error_data = []
 
     env_names.each do |env_name|
-      counts = DriftCheck
+      counts = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 30.days.ago.beginning_of_day..)
@@ -303,7 +311,7 @@ class DashboardController < ApplicationController
     date_labels = dates.map { |d| d.strftime("%b %d") }
 
     # Get average durations by date
-    raw_data = DriftCheck
+    raw_data = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .where.not(duration: nil)
       .group("DATE(created_at)")
@@ -312,11 +320,11 @@ class DashboardController < ApplicationController
     durations = dates.map { |date| (raw_data[date]&.round(1)) || 0 }
 
     # Per-environment data
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
     by_environment = {}
 
     env_names.each do |env_name|
-      env_raw = DriftCheck
+      env_raw = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
@@ -339,20 +347,20 @@ class DashboardController < ApplicationController
     # Resource changes over time (add/change/destroy counts)
     dates = (14.days.ago.to_date..Date.current).to_a
     date_labels = dates.map { |d| d.strftime("%b %d") }
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Aggregate data by date using separate sum queries
-    adds_raw = DriftCheck
+    adds_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:add_count)
 
-    changes_raw = DriftCheck
+    changes_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:change_count)
 
-    destroys_raw = DriftCheck
+    destroys_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:destroy_count)
@@ -364,21 +372,21 @@ class DashboardController < ApplicationController
     # Per-environment data
     by_environment = {}
     env_names.each do |env_name|
-      env_adds = DriftCheck
+      env_adds = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
         .group("DATE(drift_checks.created_at)")
         .sum(:add_count)
 
-      env_changes = DriftCheck
+      env_changes = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
         .group("DATE(drift_checks.created_at)")
         .sum(:change_count)
 
-      env_destroys = DriftCheck
+      env_destroys = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
@@ -403,10 +411,10 @@ class DashboardController < ApplicationController
     # Drift rate percentage over time
     dates = (14.days.ago.to_date..Date.current).to_a
     date_labels = dates.map { |d| d.strftime("%b %d") }
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Get counts by date and status
-    raw_data = DriftCheck
+    raw_data = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .group(:status)
@@ -421,7 +429,7 @@ class DashboardController < ApplicationController
     # Per-environment drift rates
     by_environment = {}
     env_names.each do |env_name|
-      env_raw = DriftCheck
+      env_raw = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
@@ -449,10 +457,10 @@ class DashboardController < ApplicationController
     # Number of checks per day
     dates = (14.days.ago.to_date..Date.current).to_a
     date_labels = dates.map { |d| d.strftime("%b %d") }
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Count checks per day
-    raw_data = DriftCheck
+    raw_data = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .count
@@ -462,7 +470,7 @@ class DashboardController < ApplicationController
     # Per-environment volumes
     by_environment = {}
     env_names.each do |env_name|
-      env_raw = DriftCheck
+      env_raw = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
@@ -481,10 +489,10 @@ class DashboardController < ApplicationController
 
   def build_top_drifting_data
     # Top projects by drift count/rate (last 30 days)
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Get drift counts per project
-    drift_counts = DriftCheck
+    drift_counts = metrics_drift_checks
       .joins(environment: :project)
       .where(status: :drift)
       .where(created_at: 30.days.ago.beginning_of_day..)
@@ -492,7 +500,7 @@ class DashboardController < ApplicationController
       .count
 
     # Get total counts per project for calculating rate
-    total_counts = DriftCheck
+    total_counts = metrics_drift_checks
       .joins(environment: :project)
       .where(created_at: 30.days.ago.beginning_of_day..)
       .group("projects.name")
@@ -515,7 +523,7 @@ class DashboardController < ApplicationController
     # Per-environment data
     by_environment = {}
     env_names.each do |env_name|
-      env_drift = DriftCheck
+      env_drift = metrics_drift_checks
         .joins(environment: :project)
         .where(environments: { name: env_name })
         .where(status: :drift)
@@ -523,7 +531,7 @@ class DashboardController < ApplicationController
         .group("projects.name")
         .count
 
-      env_total = DriftCheck
+      env_total = metrics_drift_checks
         .joins(environment: :project)
         .where(environments: { name: env_name })
         .where(created_at: 30.days.ago.beginning_of_day..)
@@ -556,19 +564,19 @@ class DashboardController < ApplicationController
     # Stacked area: proportion of adds vs changes vs destroys over time
     dates = (14.days.ago.to_date..Date.current).to_a
     date_labels = dates.map { |d| d.strftime("%b %d") }
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
-    adds_raw = DriftCheck
+    adds_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:add_count)
 
-    changes_raw = DriftCheck
+    changes_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:change_count)
 
-    destroys_raw = DriftCheck
+    destroys_raw = metrics_drift_checks
       .where(created_at: 14.days.ago.beginning_of_day..)
       .group("DATE(created_at)")
       .sum(:destroy_count)
@@ -580,21 +588,21 @@ class DashboardController < ApplicationController
     # Per-environment data
     by_environment = {}
     env_names.each do |env_name|
-      env_adds = DriftCheck
+      env_adds = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
         .group("DATE(drift_checks.created_at)")
         .sum(:add_count)
 
-      env_changes = DriftCheck
+      env_changes = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
         .group("DATE(drift_checks.created_at)")
         .sum(:change_count)
 
-      env_destroys = DriftCheck
+      env_destroys = metrics_drift_checks
         .joins(:environment)
         .where(environments: { name: env_name })
         .where(created_at: 14.days.ago.beginning_of_day..)
@@ -618,10 +626,10 @@ class DashboardController < ApplicationController
   def build_stability_score_data
     # Stability Score: percentage of project-environments that have been consecutively OK
     # Shows a gauge with overall stability and breakdown by streak duration
-    env_names = Environment.distinct.pluck(:name)
+    env_names = metrics_environments.distinct.pluck(:name)
 
     # Get all project-environments with their recent check history
-    environments = Environment.includes(:project).where.not(last_checked_at: nil)
+    environments = metrics_environments.includes(:project).where.not(last_checked_at: nil)
 
     total_envs = environments.count
     return { score: 0, breakdown: { stable_7plus: 0, stable_3to6: 0, unstable: 0 }, by_environment: {} } if total_envs == 0

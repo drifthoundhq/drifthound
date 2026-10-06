@@ -29,6 +29,13 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Test Project"
   end
 
+  test "environment name links to the environment overview page" do
+    get project_path(@project.key)
+    assert_response :success
+    assert_select ".environment-row .environment-name a.env-link[href=?]", environment_overview_path(@environment.key), text: "Production"
+    assert_select ".environment-row a.row-link[href=?]", project_environment_path(@project.key, @environment.key)
+  end
+
   test "shows drift check history" do
     get project_environment_path(@project.key, @environment.key)
     assert_response :success
@@ -44,5 +51,15 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get project_environment_path(@project.key, @environment.key)
     assert_response :success
     assert_select ".check-output code", /Plan: 2 to add/
+  end
+
+  test "project page lists an excluded environment with its status" do
+    @environment.update!(exclude_from_metrics: true)
+
+    get project_path(@project.key)
+
+    assert_response :success
+    assert_select ".environment-row", 1
+    assert_select ".environment-row .status-text--drift", "DRIFT"
   end
 end

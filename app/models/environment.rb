@@ -6,9 +6,28 @@ class Environment < ApplicationRecord
   has_many :notification_states, dependent: :destroy
   has_many :notification_channels, as: :notifiable, dependent: :destroy
 
+  scope :included_in_metrics, -> { where(exclude_from_metrics: false) }
+
   # Returns the status of the most recent drift check, or 'unknown' if none
   def last_check_status
     drift_checks.order(created_at: :desc).limit(1).pluck(:status).first || "unknown"
+  end
+
+  # Deletes checks created before the given time and returns how many were deleted
+  def delete_checks_before(time)
+    deleted_count = drift_checks.where(created_at: ...time).destroy_all.size
+    refresh_latest_check if deleted_count.positive?
+    deleted_count
+  end
+
+  # Resets status and last_checked_at to the newest remaining check, without sending notifications
+  def refresh_latest_check
+    latest = drift_checks.order(created_at: :desc, id: :desc).first
+    update_columns(
+      status: latest&.status || "unknown",
+      last_checked_at: latest&.created_at,
+      updated_at: Time.current
+    )
   end
 
   enum :status, {

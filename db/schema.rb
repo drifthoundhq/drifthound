@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_130000) do
   create_table "environments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "directory"
+    t.boolean "exclude_from_metrics", default: false, null: false
     t.string "key", null: false
     t.datetime "last_checked_at"
     t.string "name", null: false

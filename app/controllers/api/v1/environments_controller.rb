@@ -22,6 +22,21 @@ module Api
         render json: environment_json(environment, include_project: true)
       end
 
+      # PATCH /api/v1/projects/:project_key/environments/:key
+      # Body params:
+      #   - exclude_from_metrics: true or false
+      def update
+        environment = @project.environments.find_by!(key: params[:key])
+        value = params[:exclude_from_metrics]
+        unless [ true, false ].include?(value)
+          render json: { error: "exclude_from_metrics must be true or false" }, status: :unprocessable_entity
+          return
+        end
+
+        environment.update!(exclude_from_metrics: value)
+        render json: environment_json(environment, include_project: true)
+      end
+
       # GET /api/v1/projects/:project_key/environments/:key/drift
       # Returns the latest drift check, with raw_output when the token may read plan output
       def drift
@@ -50,6 +65,7 @@ module Api
           name: env.name,
           status: env.status,
           directory: env.directory,
+          exclude_from_metrics: env.exclude_from_metrics,
           last_checked_at: env.last_checked_at,
           last_drift_check: latest_check ? drift_check_summary_json(latest_check) : nil
         }

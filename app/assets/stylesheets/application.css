@@ -124,6 +124,39 @@
   transition: background-color 0.15s;
 }
 
+.project-env-row,
+.environment-row {
+  position: relative;
+}
+
+.row-link {
+  position: absolute;
+  inset: 0;
+}
+
+.row-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.env-link {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
+
+.env-link:hover {
+  text-decoration: underline;
+}
+
+.environment-overview-table {
+  grid-template-columns: repeat(2, minmax(120px, 1fr)) auto auto auto;
+}
+
+.environment-overview-table .col-project a {
+  font-weight: 600;
+}
+
 .project-env-row:last-child {
   border-bottom: none;
 }
@@ -678,6 +711,13 @@ h1, h2, h3 {
 
 .summary-bottom-right {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metrics-toggle-form {
+  display: inline;
 }
 
 .project-summary-card .summary-bottom::before {
@@ -1890,6 +1930,10 @@ h1, h2, h3 {
   transform: translateY(-2px);
 }
 
+.chart-card:has(.chart-info:hover) {
+  z-index: 51;
+}
+
 .chart-card-header {
   display: flex;
   justify-content: space-between;
@@ -2948,3 +2992,23 @@ h1, h2, h3 {
   padding: 0 0.75rem;
 }
 
+/* ===== Clearing Checks ===== */
+.clear-checks-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.clear-checks-form input[type="date"] {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-card);
+  color: var(--color-text);
+}
+
+.delete-check-form {
+  display: inline;
+  margin-left: 0.5rem;
+}

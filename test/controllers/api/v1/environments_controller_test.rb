@@ -298,6 +298,60 @@ class Api::V1::EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_nil response.parsed_body["last_drift_check"]
   end
 
+  test "update sets exclude_from_metrics" do
+    env = @project.environments.create!(name: "Sandbox", key: "sandbox", status: :drift)
+
+    patch api_v1_project_environment_path(@project.key, env.key),
+      params: { exclude_from_metrics: true }, headers: @auth_header, as: :json
+
+    assert_response :success
+    assert_equal true, response.parsed_body["exclude_from_metrics"]
+    assert env.reload.exclude_from_metrics?
+
+    patch api_v1_project_environment_path(@project.key, env.key),
+      params: { exclude_from_metrics: false }, headers: @auth_header, as: :json
+    assert_not env.reload.exclude_from_metrics?
+  end
+
+  test "update rejects a non-boolean exclude_from_metrics" do
+    env = @project.environments.create!(name: "Sandbox", key: "sandbox")
+
+    patch api_v1_project_environment_path(@project.key, env.key),
+      params: { exclude_from_metrics: "yes" }, headers: @auth_header, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal "exclude_from_metrics must be true or false", response.parsed_body["error"]
+    assert_not env.reload.exclude_from_metrics?
+  end
+
+  test "update returns not found for an unknown environment" do
+    patch api_v1_project_environment_path(@project.key, "missing"),
+      params: { exclude_from_metrics: true }, headers: @auth_header, as: :json
+
+    assert_response :not_found
+  end
+
+  test "read-only tokens cannot update an environment" do
+    env = @project.environments.create!(name: "Sandbox", key: "sandbox")
+    read_header = { "Authorization" => "Bearer #{ApiToken.create!(name: "dashboard", access: "read").token}" }
+
+    patch api_v1_project_environment_path(@project.key, env.key),
+      params: { exclude_from_metrics: true }, headers: read_header, as: :json
+
+    assert_response :forbidden
+    assert_not env.reload.exclude_from_metrics?
+  end
+
+  test "excluded environments are still listed, with the flag" do
+    @project.environments.create!(name: "Prod", key: "prod", status: :ok)
+    @project.environments.create!(name: "Sandbox", key: "sandbox", status: :drift, exclude_from_metrics: true)
+
+    get api_v1_project_environments_path(@project.key), headers: @auth_header, as: :json
+
+    assert_response :success
+    assert_equal [ [ "prod", false ], [ "sandbox", true ] ], response.parsed_body.map { |e| [ e["key"], e["exclude_from_metrics"] ] }
+  end
+
   test "drift and last_drift_check include the check branch" do
     env = @project.environments.create!(name: "Prod", key: "prod")
     env.drift_checks.create!(status: :drift, add_count: 1, branch: "release/2.0")
