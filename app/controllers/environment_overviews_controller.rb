@@ -7,7 +7,6 @@ class EnvironmentOverviewsController < ApplicationController
     raise ActiveRecord::RecordNotFound if @environments.empty?
 
     @key = params[:key]
-    @name = @environments.first.name
     @latest_checks = latest_checks_by_environment(@environments)
   end
 

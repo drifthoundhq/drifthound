@@ -1,7 +1,7 @@
 <div class="environment-detail">
   <header class="project-header">
-    <div class="breadcrumb" title="<%= @name %>">
-      <%= link_to "DriftHound", root_path %><span class="breadcrumb-sep"> › </span><span title="<%= @name %>"><%= @name %></span>
+    <div class="breadcrumb" title="<%= @key %>">
+      <%= link_to "DriftHound", root_path %><span class="breadcrumb-sep"> › </span><span title="<%= @key %>"><%= @key %></span>
     </div>
     <%= link_to "← Back to dashboard", root_path, class: "back-link" %>
   </header>
@@ -9,9 +9,7 @@
   <section class="project-summary-card">
     <div class="summary-top">
       <div class="main-info">
-        <h1 title="<%= @name %>"><%= @name %></h1>
-        <span class="env-separator">&bull;</span>
-        <span class="environment-title"><code><%= @key %></code></span>
+        <h1 title="<%= @key %>"><%= @key %></h1>
       </div>
       <div>
         <span class="last-check-time"><%= pluralize(@environments.size, "project") %></span>
@@ -23,6 +21,7 @@
     <div class="projects-table environment-overview-table">
       <div class="project-envs-header">
         <span>Project</span>
+        <span>Environment</span>
         <span>Status</span>
         <span>Add / Change / Destroy</span>
         <span style="text-align:right;">Last Check</span>
@@ -34,6 +33,7 @@
           <span class="col-project" title="<%= environment.project.name %>">
             <%= link_to environment.project.name, project_environment_path(environment.project.key, environment.key) %>
           </span>
+          <span class="col-environment" title="<%= environment.name %>"><%= environment.name %></span>
           <span class="col-status">
             <span class="status-indicator status-indicator--<%= status %>"></span>
             <span class="status-text status-text--<%= status %>"><%= status.upcase %></span>

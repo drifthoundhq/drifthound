@@ -27,11 +27,22 @@ class EnvironmentOverviewsControllerTest < ActionDispatch::IntegrationTest
     get environment_overview_path("overview-prod")
 
     assert_response :success
-    assert_select "h1", "Production"
-    assert_select ".environment-title code", "overview-prod"
+    assert_select "h1", "overview-prod"
     assert_select ".project-env-row", 3
     assert_select ".project-env-row .col-project a" do |links|
       assert_equal [ "app-cluster", "database", "network" ], links.map { |link| link.text.strip }
+    end
+  end
+
+  test "titles the page by the environment key when projects name it differently" do
+    @network_env.update!(name: "Production EU")
+    @database_env.update!(name: "Prod (billing)")
+
+    get environment_overview_path("overview-prod")
+
+    assert_select "h1", "overview-prod"
+    assert_select ".col-environment" do |cells|
+      assert_equal [ "Production", "Prod (billing)", "Production EU" ], cells.map { |cell| cell.text.strip }
     end
   end
 
@@ -68,7 +79,7 @@ class EnvironmentOverviewsControllerTest < ActionDispatch::IntegrationTest
     get environment_overview_path("overview-staging")
 
     assert_response :success
-    assert_select "h1", "Staging"
+    assert_select "h1", "overview-staging"
     assert_select ".project-env-row", 1
   end
 

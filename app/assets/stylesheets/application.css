@@ -149,6 +149,10 @@
   text-decoration: underline;
 }
 
+.environment-overview-table {
+  grid-template-columns: repeat(2, minmax(120px, 1fr)) auto auto auto;
+}
+
 .environment-overview-table .col-project a {
   font-weight: 600;
 }
