@@ -62,7 +62,7 @@ curl -X POST \
 | `environment_name` | string | No | Display name for the environment. Defaults to the titleized `environment_key` when the environment is created. When provided, it is applied on every call, so it also renames an existing environment. When omitted, the current name is kept. Must be a string; surrounding whitespace is removed. At most 255 characters; a longer or non-string value is rejected with `422 Unprocessable Entity` and nothing is created or renamed. The last name sent wins, so if several pipelines report the same environment, send the same name from all of them. |
 | `directory` | string | No | Directory where Terraform is executed. Only set on first call; subsequent calls won't overwrite. Update via GUI. |
 | `repository` | string | No | Repository URL (e.g., `https://github.com/org/repo`). Only set on first call; subsequent calls won't overwrite. Update via GUI. |
-| `branch` | string | No | Repository branch (default: `main`). Only set on first call if different from default; update via GUI. |
+| `branch` | string | No | Branch the check ran against. Stored on each check and shown in the environment's check history; the environment page links the repository at the latest check's branch. The first value that differs from `main` also becomes the project branch, which is used when a check has no branch. Must be a string of at most 255 characters. Names git rejects (for example ones containing `..`, spaces, `~`, `^`, `:`, `?`, `*`, `[`, `\` or `@{`, starting with `-`, `/` or `.`, or ending with `/`, `.` or `.lock`) are rejected with `422 Unprocessable Entity` and nothing is created. |
 | `notification_channel` | object | No | Optional notification channel configuration (see [Advanced Features](#advanced-features)) |
 
 ### Response
@@ -75,6 +75,7 @@ curl -X POST \
   "project_key": "my-project",
   "environment_key": "my-env",
   "status": "drift",
+  "branch": "master",
   "created_at": "2025-11-27T10:30:00Z"
 }
 ```
@@ -135,6 +136,7 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
       "destroy_count": 0,
       "duration": 8,
       "execution_number": 42,
+      "branch": "main",
       "created_at": "2025-11-27T10:30:00Z",
       "change_summary": "2 to add, 1 to change"
     }

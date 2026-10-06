@@ -656,4 +656,76 @@ class Api::V1::DriftChecksControllerTest < ActionDispatch::IntegrationTest
     # Restore original config
     Rails.application.config.notifications = original_config
   end
+
+  test "stores the branch on the check" do
+    post api_v1_environment_checks_path("branch-project", "production"),
+      params: { status: "ok", branch: "feature/network" },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+    assert_equal "feature/network", response.parsed_body["branch"]
+    assert_equal "feature/network", DriftCheck.find(response.parsed_body["id"]).branch
+  end
+
+  test "each check keeps the branch it was sent with" do
+    post api_v1_environment_checks_path("branch-project", "production"),
+      params: { status: "ok", branch: "develop" }, headers: @auth_header, as: :json
+    post api_v1_environment_checks_path("branch-project", "production"),
+      params: { status: "ok", branch: "release/2.0" }, headers: @auth_header, as: :json
+
+    environment = Project.find_by!(key: "branch-project").environments.find_by!(key: "production")
+    assert_equal [ "develop", "release/2.0" ], environment.drift_checks.order(:execution_number).pluck(:branch)
+    assert_equal "develop", environment.project.branch
+  end
+
+  test "check branch is nil when no branch is sent" do
+    post api_v1_environment_checks_path("branch-project", "production"),
+      params: { status: "ok" }, headers: @auth_header, as: :json
+
+    assert_response :created
+    assert_nil response.parsed_body["branch"]
+    assert_nil DriftCheck.find(response.parsed_body["id"]).branch
+  end
+
+  test "rejects a non-string branch" do
+    assert_no_difference "DriftCheck.count" do
+      post api_v1_environment_checks_path("branch-project", "production"),
+        params: { status: "ok", branch: { name: "main" } }, headers: @auth_header, as: :json
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "branch must be a string", response.parsed_body["error"]
+  end
+
+  test "rejects a branch longer than 255 characters" do
+    post api_v1_environment_checks_path("branch-project", "production"),
+      params: { status: "ok", branch: "b" * 256 }, headers: @auth_header, as: :json
+
+    assert_response :unprocessable_entity
+  end
+
+  test "accepts valid git branch names" do
+    [ "main", "release/5.5023", "feature/foo-bar" ].each do |name|
+      post api_v1_environment_checks_path("valid-branch", "production"),
+        params: { status: "ok", branch: name }, headers: @auth_header, as: :json
+
+      assert_response :created
+      assert_equal name, response.parsed_body["branch"]
+    end
+  end
+
+  test "rejects invalid git branch names with 422 before saving anything" do
+    [ "a..b", "bad name", "x~1", "a:b" ].each do |name|
+      assert_no_difference -> { Project.count } do
+        assert_no_difference -> { DriftCheck.count } do
+          post api_v1_environment_checks_path("invalid-branch", "production"),
+            params: { status: "ok", branch: name }, headers: @auth_header, as: :json
+        end
+      end
+
+      assert_response :unprocessable_entity
+      assert_equal({ "error" => "branch is not a valid git branch name" }, response.parsed_body)
+    end
+  end
 end

@@ -84,4 +84,52 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_path
     assert_not @env.reload.exclude_from_metrics?
   end
+
+  test "history shows each check's branch and links the repository at the latest check's branch" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "main")
+    @env.update!(directory: "envs/prod")
+    @env.drift_checks.create!(status: :ok, branch: "develop")
+    @env.drift_checks.create!(status: :ok, branch: "release/2.0")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select ".check-branch", text: "release/2.0", count: 1
+    assert_select ".check-branch", text: "develop", count: 1
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/release/2.0/envs/prod"
+  end
+
+  test "repository link falls back to the project branch when the latest check has none" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "trunk")
+    @env.update!(directory: "envs/prod")
+    @env.drift_checks.create!(status: :ok, branch: "develop")
+    @env.drift_checks.create!(status: :ok)
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select ".check-branch", count: 1
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/trunk/envs/prod"
+  end
+
+  test "repository link encodes each segment of the branch and directory" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "main")
+    @env.update!(directory: "envs/prod #1")
+    @env.drift_checks.create!(status: :ok, branch: "release/fix#12")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/release/fix%2312/envs/prod%20%231"
+  end
+
+  test "repository link encodes a project branch containing a question mark" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "what?now")
+    @env.update!(directory: "envs/prod")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/what%3Fnow/envs/prod"
+  end
 end

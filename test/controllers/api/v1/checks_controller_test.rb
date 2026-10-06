@@ -215,4 +215,14 @@ class Api::V1::ChecksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, queries.count { |q| q.include?(%("environments")) && !q.include?("drift_checks") }
     assert_equal 1, queries.count { |q| q.include?(%("projects")) }
   end
+
+  test "checks include the branch each check ran against" do
+    create_check(@env, at: 2.days.ago, branch: "develop")
+    create_check(@env, at: 1.day.ago)
+
+    environment_checks
+
+    assert_response :success
+    assert_equal [ nil, "develop" ], response.parsed_body["checks"].map { |c| c["branch"] }
+  end
 end

@@ -5,7 +5,7 @@ module Api
 
       DEFAULT_LIMIT = 50
       MAX_LIMIT = 500
-      COLUMNS = %i[id environment_id status add_count change_count destroy_count duration execution_number created_at].freeze
+      COLUMNS = %i[id environment_id status add_count change_count destroy_count duration execution_number branch created_at].freeze
 
       rescue_from InvalidParameter do |e|
         render json: { error: e.message }, status: :bad_request
@@ -130,6 +130,7 @@ module Api
           destroy_count: check.destroy_count,
           duration: check.duration,
           execution_number: check.execution_number,
+          branch: check.branch,
           created_at: check.created_at,
           change_summary: check.change_summary
         }

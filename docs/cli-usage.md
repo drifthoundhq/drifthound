@@ -73,7 +73,7 @@ docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/drifthoundhq/drifthound:v0.
 | `--api-url`       | Yes      | DriftHound API base URL                      |
 | `--dir`           | No       | Directory to run the tool in (default: `.`). Stored in environment on first call only; update via GUI. |
 | `--repository`    | No       | Repository URL. **Auto-detected from git** if not provided. Stored in project on first call only; update via GUI. |
-| `--branch`        | No       | Repository branch. **Auto-detected from git** if not provided. Stored in project on first call only; update via GUI. |
+| `--branch`        | No       | Repository branch. **Auto-detected from git** if not provided. Stored on every check, and in the project on first call only. |
 | `--slack-channel` | No       | Slack Channel to send notifications to       |
 
 ## How It Works

@@ -7,6 +7,15 @@ module Api
           return render json: { error: "environment_name must be a string" }, status: :unprocessable_entity
         end
 
+        unless params[:branch].nil? || params[:branch].is_a?(String)
+          return render json: { error: "branch must be a string" }, status: :unprocessable_entity
+        end
+
+        branch = params[:branch]&.strip.presence
+        if branch && !DriftCheck.valid_branch_name?(branch)
+          return render json: { error: "branch is not a valid git branch name" }, status: :unprocessable_entity
+        end
+
         environment_name = environment_name&.strip
         if environment_name.to_s.length > Environment::NAME_MAX_LENGTH
           return render json: { error: "environment_name is too long (maximum is #{Environment::NAME_MAX_LENGTH} characters)" },
@@ -22,8 +31,8 @@ module Api
         end
 
         # Set project branch only if not already set (can be updated via GUI later)
-        if params[:branch].present? && project.branch == "main"
-          project.update!(branch: params[:branch])
+        if branch && project.branch == "main"
+          project.update!(branch: branch)
         end
 
         # Set environment directory only if not already set (can be updated via GUI later)
@@ -43,6 +52,7 @@ module Api
           project_key: project.key,
           environment_key: environment.key,
           status: drift_check.status,
+          branch: drift_check.branch,
           created_at: drift_check.created_at
         }, status: :created
       end
@@ -50,7 +60,7 @@ module Api
       private
 
       def drift_check_params
-        params.permit(:status, :add_count, :change_count, :destroy_count, :duration, :raw_output)
+        params.permit(:status, :add_count, :change_count, :destroy_count, :duration, :raw_output, :branch)
       end
 
       def update_notification_channel(environment)
