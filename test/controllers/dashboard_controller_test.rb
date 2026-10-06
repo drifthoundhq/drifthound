@@ -35,6 +35,20 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".col-project", /Project/
   end
 
+  test "environment names link to the environment overview page" do
+    Project.destroy_all
+    first = Project.create!(name: "network", key: "network")
+    second = Project.create!(name: "database", key: "database")
+    first.environments.create!(name: "Production", key: "production")
+    second.environments.create!(name: "Production", key: "production")
+
+    get root_path
+
+    assert_response :success
+    assert_select ".project-env-row .col-environment a.env-link[href=?]", environment_overview_path("production"), text: "Production", count: 2
+    assert_select ".project-env-row a.row-link[href=?]", project_environment_path("network", "production")
+  end
+
   test "shows status counts correctly" do
     Project.destroy_all
     ok_project = Project.create!(name: "OK Project", key: "ok-project")
@@ -241,5 +255,75 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
     # Verify charts are still rendered with historical data
     assert_select ".chart-card", 12
+  end
+
+  # ===== Exclude From Metrics Tests =====
+
+  def chart_data(name)
+    JSON.parse(css_select("[data-#{name}-data-value]").first["data-#{name}-data-value"])
+  end
+
+  test "an excluded environment stays in the table with its drift" do
+    Project.destroy_all
+    project = Project.create!(name: "Project", key: "project")
+    prod = project.environments.create!(name: "Production", key: "production")
+    sandbox = project.environments.create!(name: "Sandbox", key: "sandbox", exclude_from_metrics: true)
+    prod.drift_checks.create!(status: :ok)
+    sandbox.drift_checks.create!(status: :drift, add_count: 1)
+
+    get root_path
+
+    assert_response :success
+    assert_select ".project-env-row", 2
+    assert_select ".project-env-row[data-environment=Sandbox][data-status=drift] .status-text--drift", "DRIFT"
+    assert_select ".status-badge.status-drift .count", "1"
+    assert_select "#env-filter option[value=Sandbox]", 1
+  end
+
+  test "an excluded environment does not change the charts" do
+    Project.destroy_all
+    project = Project.create!(name: "Project", key: "project")
+    prod = project.environments.create!(name: "Production", key: "production")
+    sandbox = project.environments.create!(name: "Sandbox", key: "sandbox", exclude_from_metrics: true)
+    prod.drift_checks.create!(status: :ok, duration: 10)
+    sandbox.drift_checks.create!(status: :drift, add_count: 3, change_count: 2, destroy_count: 1, duration: 90)
+
+    get root_path
+
+    assert_response :success
+    assert_equal({ "ok" => 1, "drift" => 0, "error" => 0 }, chart_data("status-chart")["all"])
+    assert_equal [ "Production" ], chart_data("status-chart")["by_environment"].keys
+    assert_equal [ "Production" ], chart_data("environment-health-chart")["labels"]
+    assert_equal 0, chart_data("drift-chart")["all"]["drift"].sum
+    assert_equal 1, chart_data("check-volume-chart")["all"].sum
+    assert_equal 0, chart_data("resource-changes-chart")["all"]["adds"].sum
+    assert_equal 0, chart_data("change-impact-chart")["all"]["destroys"].sum
+    assert_equal 0, chart_data("drift-rate-chart")["all"].sum
+    assert_equal 10.0, chart_data("duration-chart")["all"].map(&:to_f).max
+    assert_equal [], chart_data("top-drifting-chart")["labels"]
+    assert_equal 0, chart_data("project-chart")["all"]["drift"].sum
+    assert_equal 0, chart_data("weekly-chart")["all"]["drift"].sum
+  end
+
+  test "an excluded environment does not change the stability score" do
+    Project.destroy_all
+    project = Project.create!(name: "Project", key: "project")
+    stable = project.environments.create!(name: "Production", key: "production")
+    flaky = project.environments.create!(name: "Sandbox", key: "sandbox")
+    7.times { stable.drift_checks.create!(status: :ok) }
+    flaky.drift_checks.create!(status: :drift, add_count: 1)
+
+    get root_path
+    score = chart_data("stability-score-chart")
+    assert_equal 50.0, score["score"]
+    assert_equal 2, score["total"]
+
+    flaky.update!(exclude_from_metrics: true)
+
+    get root_path
+    score = chart_data("stability-score-chart")
+    assert_equal 100.0, score["score"]
+    assert_equal 1, score["total"]
+    assert_not_includes score["by_environment"].keys, "Sandbox"
   end
 end

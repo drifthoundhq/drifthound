@@ -51,6 +51,7 @@ module Api
           name: env.name,
           status: env.status,
           directory: env.directory,
+          exclude_from_metrics: env.exclude_from_metrics,
           last_checked_at: env.last_checked_at
         }
       end

@@ -103,7 +103,7 @@ PUBLIC_MODE=true
 
 **Notes:**
 - **Private by default** - New deployments require authentication out of the box
-- Admin actions (delete projects/environments/checks, user management, API tokens) always require authentication regardless of this setting
+- Admin actions (delete projects/environments/checks, exclude environments from metrics, user management, API tokens) always require authentication regardless of this setting
 - Use public mode for internal dashboards where authentication would add friction
 - Use private mode for sensitive infrastructure data or external-facing deployments
 
@@ -196,6 +196,15 @@ When logged in as admin, you can:
 - Delete projects (cascades to all environments and drift checks)
 - Delete environments (cascades to all drift checks)
 - Delete a single drift check, or clear an environment's checks from before a date, from the environment page. The environment's status and last check time move to the newest remaining check, and no notification is sent.
+- Exclude environments from dashboard metrics (see below)
+
+### Excluding Environments From Dashboard Metrics
+
+Test or short-lived environments can skew the dashboard charts. An admin can exclude an environment with the **Exclude from Metrics** button on its page, and include it again with **Include in Metrics**. `write` API tokens can set the same flag; see [API Usage](api-usage.md#update-an-environment).
+
+- An excluded environment is left out of every dashboard chart and the stability score.
+- It stays in every list: the dashboard table and status counts, the project page, its own page and the API, with its drift shown as normal.
+- New checks are still recorded, and notifications are not affected.
 
 Read-only operations (viewing dashboard, projects, environments, drift history) do not require authentication.
 

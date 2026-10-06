@@ -194,4 +194,17 @@ class EnvironmentTest < ActiveSupport::TestCase
     environment = @project.environments.create!(name: "Production", key: "prod-nil", directory: nil)
     assert_nil environment.directory
   end
+
+  test "environments are included in metrics by default" do
+    environment = @project.environments.create!(name: "New", key: "new-env")
+    assert_not environment.exclude_from_metrics?
+  end
+
+  test "included_in_metrics leaves out excluded environments" do
+    included = @project.environments.create!(name: "Included", key: "included")
+    excluded = @project.environments.create!(name: "Excluded", key: "excluded", exclude_from_metrics: true)
+
+    assert_includes Environment.included_in_metrics, included
+    assert_not_includes Environment.included_in_metrics, excluded
+  end
 end

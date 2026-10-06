@@ -124,6 +124,39 @@
   transition: background-color 0.15s;
 }
 
+.project-env-row,
+.environment-row {
+  position: relative;
+}
+
+.row-link {
+  position: absolute;
+  inset: 0;
+}
+
+.row-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.env-link {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
+
+.env-link:hover {
+  text-decoration: underline;
+}
+
+.environment-overview-table {
+  grid-template-columns: repeat(2, minmax(120px, 1fr)) auto auto auto;
+}
+
+.environment-overview-table .col-project a {
+  font-weight: 600;
+}
+
 .project-env-row:last-child {
   border-bottom: none;
 }
@@ -678,6 +711,13 @@ h1, h2, h3 {
 
 .summary-bottom-right {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metrics-toggle-form {
+  display: inline;
 }
 
 .project-summary-card .summary-bottom::before {
