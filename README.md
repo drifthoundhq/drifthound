@@ -224,3 +224,7 @@ flowchart LR
 ## License
 
 AGPL-3.0
+
+## Thank you contributors! :heart:
+
+[![](https://contrib.rocks/image?repo=drifthoundhq/drifthound)](https://github.com/drifhoundhq/drifthound/graphs/contributors)
