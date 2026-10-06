@@ -172,4 +172,21 @@ class DriftCheckTest < ActiveSupport::TestCase
     drift_check = @environment.drift_checks.create!(status: :ok)
     assert_equal @project, drift_check.project
   end
+
+  test "branch is optional" do
+    check = environments(:production).drift_checks.create!(status: :ok)
+    assert_nil check.branch
+  end
+
+  test "branch is stripped and blank branch is stored as nil" do
+    environment = environments(:production)
+    assert_equal "release/1.2", environment.drift_checks.create!(status: :ok, branch: "  release/1.2 ").branch
+    assert_nil environment.drift_checks.create!(status: :ok, branch: "   ").branch
+  end
+
+  test "branch is limited to 255 characters" do
+    check = environments(:production).drift_checks.build(status: :ok, branch: "b" * 256)
+    assert_not check.valid?
+    assert_includes check.errors[:branch], "is too long (maximum is 255 characters)"
+  end
 end

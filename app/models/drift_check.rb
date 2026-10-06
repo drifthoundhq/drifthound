@@ -8,7 +8,12 @@ class DriftCheck < ApplicationRecord
     error: 3
   }
 
+  BRANCH_MAX_LENGTH = 255
+
+  normalizes :branch, with: ->(branch) { branch.strip.presence }
+
   validates :status, presence: true
+  validates :branch, length: { maximum: BRANCH_MAX_LENGTH }, allow_nil: true
 
   before_create :assign_execution_number
   after_create :update_environment_status

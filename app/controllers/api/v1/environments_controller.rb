@@ -75,6 +75,7 @@ module Api
           destroy_count: check.destroy_count,
           duration: check.duration,
           execution_number: check.execution_number,
+          branch: check.branch,
           created_at: check.created_at,
           change_summary: check.change_summary
         }

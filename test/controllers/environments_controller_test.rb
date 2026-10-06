@@ -40,4 +40,31 @@ class EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[data-plan-noise-target=toggle]", 0
   end
+
+  test "history shows each check's branch and links the repository at the latest check's branch" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "main")
+    @env.update!(directory: "envs/prod")
+    @env.drift_checks.create!(status: :ok, branch: "develop")
+    @env.drift_checks.create!(status: :ok, branch: "release/2.0")
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select ".check-branch", text: "release/2.0", count: 1
+    assert_select ".check-branch", text: "develop", count: 1
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/release/2.0/envs/prod"
+  end
+
+  test "repository link falls back to the project branch when the latest check has none" do
+    @project.update!(repository: "https://github.com/org/infra", branch: "trunk")
+    @env.update!(directory: "envs/prod")
+    @env.drift_checks.create!(status: :ok, branch: "develop")
+    @env.drift_checks.create!(status: :ok)
+
+    get project_environment_path(@project.key, @env.key)
+
+    assert_response :success
+    assert_select ".check-branch", count: 1
+    assert_select "a[href=?]", "https://github.com/org/infra/tree/trunk/envs/prod"
+  end
 end

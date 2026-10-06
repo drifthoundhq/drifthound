@@ -297,4 +297,16 @@ class Api::V1::EnvironmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_nil response.parsed_body["last_drift_check"]
   end
+
+  test "drift and last_drift_check include the check branch" do
+    env = @project.environments.create!(name: "Prod", key: "prod")
+    env.drift_checks.create!(status: :drift, add_count: 1, branch: "release/2.0")
+
+    get drift_api_v1_project_environment_path(@project.key, env.key), headers: @auth_header, as: :json
+    assert_response :success
+    assert_equal "release/2.0", response.parsed_body["branch"]
+
+    get api_v1_project_environment_path(@project.key, env.key), headers: @auth_header, as: :json
+    assert_equal "release/2.0", response.parsed_body["last_drift_check"]["branch"]
+  end
 end

@@ -980,6 +980,16 @@ h1, h2, h3 {
   min-width: 0;
 }
 
+.check-branch {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
+
 .environment-row .col-time {
   text-align: right;
 }

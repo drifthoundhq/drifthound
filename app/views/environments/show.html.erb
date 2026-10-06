@@ -44,7 +44,7 @@
                   <%
                     # Build full path URL for tree view
                     repo_url = @project.repository.sub(/\.git$/, '')
-                    branch = @project.branch || "main"
+                    branch = @drift_checks.first&.branch || @project.branch || "main"
                     # Clean directory path (remove leading ./ or /)
                     clean_directory = @environment.directory.sub(%r{^\.?/}, '')
                     # Build tree path for GitHub/GitLab/Bitbucket
@@ -135,6 +135,9 @@
                   <%= parts.any? ? parts.join(", ") : "—" %>
                 <% else %>
                   —
+                <% end %>
+                <% if check.branch.present? %>
+                  <span class="check-branch" title="Branch"><%= check.branch %></span>
                 <% end %>
               </span>
               <span class="col-duration">
