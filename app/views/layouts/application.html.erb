@@ -34,23 +34,6 @@
   </head>
 
   <body>
-    <% if flash[:notice] || flash[:alert] %>
-      <div class="flash-messages">
-        <% if flash[:notice] %>
-          <div class="flash flash-notice" data-controller="flash">
-            <span><%= flash[:notice] %></span>
-            <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
-          </div>
-        <% end %>
-        <% if flash[:alert] %>
-          <div class="flash flash-alert" data-controller="flash">
-            <span><%= flash[:alert] %></span>
-            <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
-
     <nav class="top-nav">
       <div class="nav-container">
         <div class="nav-left">
@@ -85,6 +68,22 @@
           <% end %>
         </div>
       </div>
+      <% if flash[:notice] || flash[:alert] %>
+        <div class="flash-messages">
+          <% if flash[:notice] %>
+            <div class="flash flash-notice" data-controller="flash">
+              <span><%= flash[:notice] %></span>
+              <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
+            </div>
+          <% end %>
+          <% if flash[:alert] %>
+            <div class="flash flash-alert" data-controller="flash">
+              <span><%= flash[:alert] %></span>
+              <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </nav>
 
     <main class="container">

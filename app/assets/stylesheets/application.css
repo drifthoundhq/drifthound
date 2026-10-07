@@ -1415,9 +1415,10 @@ h1, h2, h3 {
 }
 
 /* ===== Flash Messages ===== */
+/* Anchored to the sticky nav so it sits just below it, whatever its height */
 .flash-messages {
-  position: fixed;
-  top: 1rem;
+  position: absolute;
+  top: calc(100% + 0.75rem);
   right: 1rem;
   z-index: 1000;
   display: flex;
