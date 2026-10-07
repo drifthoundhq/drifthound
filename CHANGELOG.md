@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.1](https://github.com/drifthoundhq/drifthound/compare/v0.9.0...v0.9.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* show flash messages below the nav bar instead of over it ([#171](https://github.com/drifthoundhq/drifthound/issues/171)) ([39b0e20](https://github.com/drifthoundhq/drifthound/commit/39b0e20e4611f749d7c77d9e64a27c83f4b5e00e))
+* show the logged out notice after logout instead of a login-required alert ([#172](https://github.com/drifthoundhq/drifthound/issues/172)) ([880023c](https://github.com/drifthoundhq/drifthound/commit/880023c12c6e7f0d200519fba990c98ced08cfbc))
+
 ## [0.9.0](https://github.com/drifthoundhq/drifthound/compare/v0.8.0...v0.9.0) (2026-10-06)
 
 
