@@ -114,8 +114,8 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.2)
       tzinfo
-    faraday (2.14.4)
-      faraday-net_http (>= 2.0, < 3.5)
+    faraday (2.15.0)
+      faraday-net_http (>= 2.0, < 3.6)
       json
       logger
     faraday-follow_redirects (0.5.0)
@@ -125,13 +125,11 @@ GEM
       hashie
     faraday-multipart (1.2.0)
       multipart-post (~> 2.0)
-    faraday-net_http (3.4.4)
+    faraday-net_http (3.5.0)
       net-http (~> 0.5)
     fugit (1.14.0)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
-    gli (2.22.2)
-      ostruct
     globalid (1.4.0)
       activesupport (>= 6.1)
     hashie (5.1.0)
@@ -192,7 +190,8 @@ GEM
       ruby2_keywords (>= 0.0.5)
     msgpack (1.8.5)
     multipart-post (2.4.1)
-    net-http (0.9.1)
+    net-http (0.10.0)
+      net-protocol (>= 0.3.0)
       uri (>= 0.11.1)
     net-imap (0.6.7)
       date
@@ -367,16 +366,15 @@ GEM
     ruby2_keywords (0.0.5)
     rubyzip (3.7.0)
     securerandom (0.4.1)
-    selenium-webdriver (4.50.0)
+    selenium-webdriver (4.51.0)
       base64 (~> 0.2)
       logger (~> 1.4)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    slack-ruby-client (3.2.0)
+    slack-ruby-client (3.3.0)
       faraday (>= 2.0.1)
       faraday-mashify
       faraday-multipart
-      gli
       hashie
       logger
     solid_cable (3.0.12)
@@ -410,10 +408,10 @@ GEM
       faraday (~> 2.0)
       faraday-follow_redirects
     thor (1.5.0)
-    thruster (0.1.26)
-    thruster (0.1.26-aarch64-linux)
-    thruster (0.1.26-arm64-darwin)
-    thruster (0.1.26-x86_64-linux)
+    thruster (0.1.27)
+    thruster (0.1.27-aarch64-linux)
+    thruster (0.1.27-arm64-darwin)
+    thruster (0.1.27-x86_64-linux)
     timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -424,7 +422,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    uri (1.1.1)
+    uri (1.1.2)
     useragent (0.16.11)
     validate_url (1.0.15)
       activemodel (>= 3.0.0)
@@ -478,7 +476,7 @@ DEPENDENCIES
   rails (~> 8.1.4)
   rubocop-rails-omakase
   selenium-webdriver
-  slack-ruby-client (~> 3.2)
+  slack-ruby-client (~> 3.3)
   solid_cable
   solid_cache
   solid_queue
