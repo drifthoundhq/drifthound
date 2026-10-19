@@ -44,7 +44,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 # Slack API client [https://github.com/slack-ruby/slack-ruby-client]
-gem "slack-ruby-client", "~> 3.2"
+gem "slack-ruby-client", "~> 3.3"
 
 gem "omniauth", "~> 2.1"
 gem "omniauth_openid_connect", "~> 0.8"
