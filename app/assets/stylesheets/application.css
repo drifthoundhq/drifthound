@@ -287,7 +287,7 @@
   --color-accent-border: rgba(96, 165, 250, 0.4);
   --color-info-bg: rgba(96, 165, 250, 0.15);
   --color-focus-ring: rgba(96, 165, 250, 0.25);
-  --color-filter-active-bg: rgba(96, 165, 250, 0.18);
+  --color-filter-active-bg: color-mix(in srgb, #60a5fa 18%, var(--color-input-bg));
   --color-filter-active-ring: rgba(96, 165, 250, 0.45);
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
@@ -304,6 +304,11 @@
 
 :where(:root[data-theme="dark"]) :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
   background-color: var(--color-input-bg);
+}
+
+:where(:root[data-theme="dark"]) :where(select option, select optgroup) {
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
 }
 
 /* ===== Base Styles ===== */
