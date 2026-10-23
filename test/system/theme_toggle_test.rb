@@ -39,6 +39,26 @@ class ThemeToggleTest < ApplicationSystemTestCase
     assert_selector "html[data-theme='light']", visible: :all
   end
 
+  test "environment filter keeps an opaque background in dark mode after picking an environment" do
+    Rails.application.config.public_mode = true
+    project = Project.create!(name: "Theme Project", key: "theme-project")
+    project.environments.create!(name: "Production", key: "production", status: :ok)
+    project.environments.create!(name: "Staging", key: "staging", status: :drift)
+
+    emulate_color_scheme("dark")
+    page.execute_script("localStorage.removeItem('dashboardView')")
+    visit root_path
+    assert_selector "html[data-theme='dark']", visible: :all
+
+    find("#env-filter").select("Staging")
+    assert_selector "#env-filter[style*='--color-filter-active-bg']"
+
+    assert_equal 255, background_alpha("#env-filter")
+    assert_equal 255, background_alpha("#env-filter option")
+  ensure
+    Rails.application.config.public_mode = false
+  end
+
   private
 
   def emulate_color_scheme(scheme)
@@ -46,5 +66,16 @@ class ThemeToggleTest < ApplicationSystemTestCase
       "Emulation.setEmulatedMedia",
       features: [ { name: "prefers-color-scheme", value: scheme } ]
     )
+  end
+
+  def background_alpha(selector)
+    page.evaluate_script(<<~JS)
+      (() => {
+        const ctx = document.createElement("canvas").getContext("2d");
+        ctx.fillStyle = getComputedStyle(document.querySelector(#{selector.to_json})).backgroundColor;
+        ctx.fillRect(0, 0, 1, 1);
+        return ctx.getImageData(0, 0, 1, 1).data[3];
+      })()
+    JS
   end
 end
