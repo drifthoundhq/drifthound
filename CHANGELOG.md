@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2](https://github.com/drifthoundhq/drifthound/compare/v0.9.1...v0.9.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* keep the environment filter dropdown dark after picking an environment ([#176](https://github.com/drifthoundhq/drifthound/issues/176)) ([dddd12a](https://github.com/drifthoundhq/drifthound/commit/dddd12a7962661455b37c1116c9c070e0af6fa4c))
+
 ## [0.9.1](https://github.com/drifthoundhq/drifthound/compare/v0.9.0...v0.9.1) (2026-10-07)
 
 
