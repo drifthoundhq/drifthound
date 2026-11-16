@@ -46,7 +46,7 @@ gem "thruster", require: false
 # Slack API client [https://github.com/slack-ruby/slack-ruby-client]
 gem "slack-ruby-client", "~> 3.3"
 
-gem "omniauth", "~> 2.1"
+gem "omniauth", "~> 2.3"
 gem "omniauth_openid_connect", "~> 0.8"
 gem "omniauth-rails_csrf_protection", "~> 2.0"
 
@@ -73,5 +73,5 @@ group :test do
   # Mocking and stubbing [https://github.com/freerange/mocha]
   gem "mocha"
   # Pin minitest to 5.x — minitest 6 changed the run method signature incompatibly with Rails 8.1
-  gem "minitest", "~> 6.0"
+  gem "minitest", "~> 6.1"
 end
